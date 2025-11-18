@@ -157,7 +157,7 @@ export default function LearningSnapshot() {
     setCurrentPreviewClass(classItem);
     
     try {
-      toast.info('Generating cognitive assessment questions...');
+      toast.info('Generating learning profile questions...');
 
       // Ensure grade level is valid, default to CM1 if null or invalid
       const gradeLevel = (classItem.grade_level === 'CM1' || classItem.grade_level === 'CM2') 
@@ -168,7 +168,7 @@ export default function LearningSnapshot() {
       setPreviewQuestions(assessment.questions);
       setShowPreviewDialog(true);
       
-      toast.success('Cognitive questions generated successfully!');
+      toast.success('Learning profile questions generated successfully!');
     } catch (error: unknown) {
       console.error('Error generating questions:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate questions. Please check your API key configuration.';
@@ -234,7 +234,7 @@ export default function LearningSnapshot() {
 
   const downloadStudentLinks = (classItem: Class, students: Student[]) => {
     const csv = [
-      ['Student Name', 'Cognitive Assessment Link', 'Parent Email', 'Parent Email 2'].join(','),
+      ['Student Name', 'Learning Profile Link', 'Parent Email', 'Parent Email 2'].join(','),
       ...students.map(s => [
         s.name,
         getCognitiveTokenLink(s.assessment_token),
@@ -247,7 +247,7 @@ export default function LearningSnapshot() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${classItem.name}-cognitive-assessment-links.csv`;
+    a.download = `${classItem.name}-learning-profile-links.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
     toast.success('CSV downloaded successfully!');
@@ -278,7 +278,7 @@ export default function LearningSnapshot() {
               AuraVoice 
             </h1>
             <p className="text-muted-foreground">
-              Share cognitive assessment links with a Smart Voice Agent for students and parents - 15 questions across 6 validated cognitive domains
+              Share learning profile links with a Smart Voice Agent for students and parents - 15 questions across 6 validated learning support areas
               
             </p>
           </div>
@@ -289,9 +289,9 @@ export default function LearningSnapshot() {
               <div className="flex items-start gap-3">
                 <Brain className="w-6 h-6 text-purple-600 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold text-lg mb-1">Research-Backed Cognitive Assessment</h3>
+                  <h3 className="font-semibold text-lg mb-1">Research-Backed Learning Profile Assessment</h3>
                   <p className="text-sm text-muted-foreground">
-                    <strong>15 questions</strong> across 6 validated domains: Processing Speed, Working Memory, 
+                    <strong>15 questions</strong> across 6 validated learning support areas: Processing Speed, Working Memory, 
                     Attention & Focus, Learning Style, Self-Efficacy, and Motivation. Based on MSLQ, BRIEF-2, WISC-V, and UDL principles.
                   </p>
                   <p className="text-sm text-muted-foreground mt-2">
@@ -308,7 +308,7 @@ export default function LearningSnapshot() {
               <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-2xl font-bold text-gray-700 mb-2">No Classes Found</h3>
               <p className="text-gray-500 mb-6">
-                Create a class first to start cognitive assessments
+                Create a class first to start learning profile assessments
               </p>
               <Button onClick={() => router.push('/create-class')} size="lg">
                 Create Your First Class
@@ -350,7 +350,7 @@ export default function LearningSnapshot() {
                       ) : (
                         <>
                           <Eye className="w-5 h-5 mr-2" />
-                          Preview 15 Cognitive Questions
+                          Preview 15 Learning Profile Questions
                         </>
                       )}
                     </Button>
@@ -385,7 +385,7 @@ export default function LearningSnapshot() {
                           <>
                             <div className="flex items-center justify-between mb-2">
                               <p className="text-sm text-muted-foreground">
-                                Secure, personalized cognitive assessment links for each student
+                                Secure, personalized learning profile links for each student
                               </p>
                               <Button
                                 onClick={() => downloadStudentLinks(classItem, selectedClassStudents)}
@@ -485,7 +485,7 @@ export default function LearningSnapshot() {
                         <div className="p-4 bg-secondary rounded-xl">
                           <div className="flex items-center gap-2 mb-2">
                             <Link2 className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm font-medium text-muted-foreground">Class-Wide Cognitive Assessment Link</span>
+                            <span className="text-sm font-medium text-muted-foreground">Class-Wide Learning Profile Link</span>
                           </div>
                           <code className="block text-sm bg-card p-3 rounded-lg border break-all">
                             {getClassWideLink(classItem.id)}
@@ -545,7 +545,7 @@ export default function LearningSnapshot() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Brain className="w-6 h-6 text-purple-600" />
-                Cognitive Assessment Preview
+                Learning Profile Preview
               </DialogTitle>
               <DialogDescription>
                 Preview of 15 questions for {currentPreviewClass?.name}. 
@@ -617,7 +617,7 @@ export default function LearningSnapshot() {
                 Assessment Results & Summary
               </DialogTitle>
               <DialogDescription>
-                Triangulated cognitive assessment results comparing student self-perception and parent observation.
+                Triangulated learning profile results comparing student self-perception and parent observation.
               </DialogDescription>
             </DialogHeader>
             

@@ -28,16 +28,7 @@ import {
 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
-
-interface LearningCategory {
-  category_key: string;
-  category_name: string;
-  description: string;
-  characteristics: string[];
-  teaching_strategies: string[];
-  typical_behaviors: string[];
-  improvement_tips: string[];
-}
+import { DEFAULT_LEARNING_CATEGORIES, LearningCategory } from "@/lib/learning-categories";
 
 interface StudentWithCategories {
   id: string;
@@ -90,15 +81,35 @@ export default function StudentCategories() {
   const loadCategoriesAndStudents = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Load learning categories
+      // Load learning categories from database
       const { data: categoriesData, error: categoriesError } = await supabase
         .from("learning_categories")
         .select("*")
         .eq("is_active", true)
         .order("category_name");
 
-      if (categoriesError) throw categoriesError;
-      setCategories(categoriesData || []);
+      // If table doesn't exist or query fails, use static fallback data
+      if (categoriesError) {
+        console.warn("Could not load learning categories from database, using fallback data:", categoriesError);
+        // Check if it's a table not found error (PGRST205)
+        if (categoriesError.code === 'PGRST205' || categoriesError.message?.includes('Could not find the table')) {
+          setCategories(DEFAULT_LEARNING_CATEGORIES);
+        } else {
+          throw categoriesError;
+        }
+      } else {
+        // Transform database data to match interface (handle JSONB arrays)
+        const transformedCategories = (categoriesData || []).map((cat: any) => ({
+          category_key: cat.category_key,
+          category_name: cat.category_name,
+          description: cat.description || '',
+          characteristics: Array.isArray(cat.characteristics) ? cat.characteristics : [],
+          teaching_strategies: Array.isArray(cat.teaching_strategies) ? cat.teaching_strategies : [],
+          typical_behaviors: Array.isArray(cat.typical_behaviors) ? cat.typical_behaviors : [],
+          improvement_tips: Array.isArray(cat.improvement_tips) ? cat.improvement_tips : [],
+        }));
+        setCategories(transformedCategories.length > 0 ? transformedCategories : DEFAULT_LEARNING_CATEGORIES);
+      }
 
       // Load students from teacher's classes
       const { data: classes } = await supabase

@@ -128,11 +128,35 @@ export default function StudentGuidePage() {
     }
   }, [studentId, user?.id, loadStudentData, loadNotes]);
 
+  /**
+   * Saves a new note for the student.
+   * 
+   * Validates input, inserts the note into the database, and updates the UI.
+   * Provides detailed error messages if the save fails.
+   */
   const saveNote = async () => {
     if (!newNote.trim()) {
       toast({
         title: "Note is empty",
         description: "Please enter a note before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user?.id) {
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to save notes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!studentId) {
+      toast({
+        title: "Error",
+        description: "Student ID is missing.",
         variant: "destructive",
       });
       return;
@@ -144,14 +168,42 @@ export default function StudentGuidePage() {
         .from("student_notes")
         .insert({
           student_id: studentId,
-          teacher_id: user?.id,
+          teacher_id: user.id,
           note_text: newNote.trim(),
-          note_type: noteType,
+          note_type: noteType || "observation",
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error saving note:", {
+          error,
+          code: (error as any)?.code,
+          message: (error as any)?.message,
+          details: (error as any)?.details,
+          hint: (error as any)?.hint,
+          studentId,
+          teacherId: user.id,
+        });
+        
+        // Provide more specific error messages
+        let errorMessage = "Failed to save note.";
+        if ((error as any)?.code === "42501") {
+          errorMessage = "You don't have permission to save notes. Please check your account permissions.";
+        } else if ((error as any)?.code === "23503") {
+          errorMessage = "Invalid student or teacher ID. Please refresh the page and try again.";
+        } else if ((error as any)?.code === "23514") {
+          errorMessage = "Invalid note type. Please select a valid note type.";
+        } else if ((error as any)?.message) {
+          errorMessage = (error as any).message;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      if (!data) {
+        throw new Error("Note was saved but no data was returned.");
+      }
 
       setNotes([data, ...notes]);
       setNewNote("");
@@ -160,10 +212,11 @@ export default function StudentGuidePage() {
         description: "Your note has been saved successfully.",
       });
     } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to save note.";
       console.error("Error saving note:", error);
       toast({
         title: "Error",
-        description: "Failed to save note.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

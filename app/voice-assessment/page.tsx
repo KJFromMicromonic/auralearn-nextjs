@@ -284,7 +284,7 @@ export default function VoiceAssessment() {
                 AuraVoice Assessments
               </h1>
               <p className="text-muted-foreground mt-1">
-                AI-powered voice cognitive assessment with real-time analysis
+                AI-powered voice learning profile assessment with real-time analysis
               </p>
             </div>
             <Button onClick={loadSessions} variant="outline">
@@ -307,7 +307,7 @@ export default function VoiceAssessment() {
                 with students, analyzing speech patterns, confidence, and hesitation in real-time.
               </p>
               <p>
-                <strong>15 Questions:</strong> Same validated cognitive domains as text assessments, but delivered through 
+                <strong>15 Questions:</strong> Same validated learning support areas as text assessments, but delivered through 
                 natural conversation in French or English.
               </p>
               <p>
@@ -461,7 +461,7 @@ export default function VoiceAssessment() {
                   Voice Session Insights - {selectedSession && getStudentName(selectedSession.student_id)}
                 </DialogTitle>
                 <DialogDescription>
-                  Real-time voice analysis with AI-powered cognitive insights
+                  Real-time voice analysis with AI-powered learning insights
                 </DialogDescription>
               </DialogHeader>
 
