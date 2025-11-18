@@ -26,11 +26,11 @@ export default function RoleBasedSidebar() {
   ];
 
   const parentNavigation = [
-    { name: "Dashboard", path: "/parent-dashboard", icon: Home },
-    { name: "Learning Snapshot", path: "/parent/learning-snapshot", icon: Brain },
-    { name: "Support Strategies", path: "/parent-guide", icon: Heart },
-    { name: "Daily Activities", path: "/parent/activities", icon: BookOpen },
-    { name: "Adaptability Challenges", path: "/parent/challenges", icon: Target },
+    { name: t('navigation.parentDashboard'), path: "/parent-dashboard", icon: Home },
+    { name: t('navigation.learningSnapshot'), path: "/parent/learning-snapshot", icon: Brain },
+    { name: t('navigation.supportStrategies'), path: "/parent-guide", icon: Heart },
+    { name: t('navigation.dailyActivities'), path: "/parent/activities", icon: BookOpen },
+    { name: t('navigation.adaptabilityChallenges'), path: "/parent/challenges", icon: Target },
     { name: t('navigation.settings'), path: "/settings", icon: Settings },
   ];
 
@@ -56,8 +56,8 @@ export default function RoleBasedSidebar() {
               <Lightbulb className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">LearnAura</h1>
-              <p className="text-xs text-muted-foreground">Intelligence System</p>
+              <h1 className="text-xl font-bold text-foreground">{t('sidebar.learnAura')}</h1>
+              <p className="text-xs text-muted-foreground">{t('sidebar.intelligenceSystem')}</p>
             </div>
           </div>
           <LanguageSelector variant="ghost" />

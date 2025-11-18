@@ -41,7 +41,13 @@
     "parentGuide": "Parent Guide",
     "studentGuide": "Student Guide",
     "insights": "Insights",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "parentDashboard": "Dashboard",
+    "learningSnapshot": "Learning Snapshot",
+    "supportStrategies": "Support Strategies",
+    "dailyActivities": "Daily Activities",
+    "adaptabilityChallenges": "Adaptability Challenges",
+    "intelligenceSystem": "Intelligence System"
   },
   "subjects": {
     "francais": "French",
@@ -77,33 +83,86 @@
     }
   },
   "home": {
-    "title": "LearnAura",
-    "subtitle": "Classroom Intelligence System",
-    "tagline": "AI-Powered Classroom Intelligence",
-    "description": "Adapt learning to every student instantly through real-time classroom intelligence. Behavioral profiling, adaptive assessments, and intelligent grouping.",
-    "teacherLogin": "Teacher Login",
-    "parentLogin": "Parent Login",
+    "title": "AuraLearn",
+    "subtitle": "Your Child's Personal Learning Coach",
+    "tagline": "AI-Powered Learning Coach",
+    "description": "Every child learns differently. AuraLearn understands your child's unique learning style and provides personalized guidance, activities, and support strategies—so you can help them thrive at home and in school.",
+    "heroDescription": "The AI-powered platform that helps parents and teachers understand how each child learns, so every student can reach their full potential.",
+    "teacherLogin": "I'm a Teacher",
+    "parentLogin": "I'm a Parent",
     "goToDashboard": "Go to Dashboard",
     "noAccount": "Don't have an account?",
     "signUpHere": "Sign up here",
+    "forParents": {
+      "title": "For Parents",
+      "subtitle": "Support Your Child's Learning Journey",
+      "description": "Finally understand how your child learns best. Get personalized strategies, daily activities, and expert guidance tailored to your child's unique learning style—all in one place.",
+      "benefits": [
+        "Discover your child's learning strengths and needs",
+        "Get personalized support strategies you can use at home",
+        "Access daily activities that match how your child learns",
+        "Track progress and celebrate growth together"
+      ]
+    },
+    "forTeachers": {
+      "title": "For Teachers",
+      "subtitle": "Personalize Learning for Every Student",
+      "description": "Understand how each student learns and get AI-powered teaching strategies that adapt to their needs. Create differentiated instruction that helps every child succeed.",
+      "benefits": [
+        "Identify each student's unique learning profile",
+        "Generate personalized teaching strategies instantly",
+        "Create differentiated worksheets and activities",
+        "Track student progress and adjust instruction"
+      ]
+    },
+    "forStudents": {
+      "title": "How Students Benefit",
+      "subtitle": "Learning That Fits How They Learn",
+      "description": "When parents and teachers understand how a child learns, magic happens. Students get the support they need, when they need it, in ways that work for them.",
+      "benefits": [
+        "Learn in ways that match their natural strengths",
+        "Get support that's tailored to their needs",
+        "Build confidence through personalized activities",
+        "Thrive both at home and in the classroom"
+      ]
+    },
     "features": {
       "adaptiveAssessment": {
-        "title": "Adaptive Assessment",
-        "description": "8-10 questions that adapt to each student's level"
+        "title": "Understand Your Child",
+        "description": "Discover how your child learns best with personalized assessments that reveal their unique learning style, strengths, and areas for growth."
       },
       "behavioralProfiles": {
-        "title": "Behavioral Profiles",
-        "description": "10+ learning patterns detected automatically"
+        "title": "Personalized Coaching",
+        "description": "Get tailored strategies and activities designed specifically for your child's learning style, updated as they grow and learn."
       },
       "smartGrouping": {
-        "title": "Smart Grouping",
-        "description": "Automatic 3-tier grouping with contextual worksheets"
+        "title": "Support at Home",
+        "description": "Daily activities and challenges that reinforce what they're learning in school, perfectly matched to how your child learns best."
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "step1": {
+        "title": "Assess",
+        "description": "Complete a quick assessment to understand your child's learning style"
+      },
+      "step2": {
+        "title": "Discover",
+        "description": "Get insights into strengths, learning preferences, and areas for growth"
+      },
+      "step3": {
+        "title": "Support",
+        "description": "Receive personalized strategies and activities tailored to your child"
+      },
+      "step4": {
+        "title": "Thrive",
+        "description": "Watch your child grow with learning that fits how they learn"
       }
     }
   },
   "dashboard": {
-    "title": "Student Dashboard",
-    "description": "Real-time classroom assessment insights - {{count}} students",
+    "title": "Your Learning Coach Dashboard",
+    "description": "See how each student learns and get personalized teaching strategies - {{count}} students",
     "loadingStudents": "Loading student assessments...",
     "stats": {
       "struggling": "Struggling",
@@ -191,7 +250,7 @@
   },
   "settings": {
     "title": "Settings",
-    "description": "Customize your LearnAura experience",
+    "description": "Customize your AuraLearn experience",
     "theme": {
       "title": "Theme",
       "selectTheme": "Select Theme",
@@ -240,9 +299,9 @@
     "teacher": "Teacher",
     "parent": "Parent",
     "selectRole": "Select Your Role",
-    "roleDescription": "Choose how you'll be using LearnAura",
-    "teacherDescription": "Create classes, assess students, and track progress",
-    "parentDescription": "Monitor your child's learning journey and progress",
+    "roleDescription": "Choose how you'll be using AuraLearn",
+    "teacherDescription": "Create personalized learning experiences for every student",
+    "parentDescription": "Support your child's learning journey with personalized coaching",
     "continue": "Continue",
     "signingIn": "Signing in...",
     "signingUp": "Signing up...",
@@ -332,13 +391,14 @@
   },
   "teachingGuide": {
     "title": "Teaching Guide",
-    "description": "Personalized teaching strategies for your students",
+    "description": "Your Learning Coach Dashboard - Personalized teaching strategies for every student",
     "selectStudent": "Select a student to view their teaching guide",
     "strategies": "Teaching Strategies",
     "activities": "Recommended Activities",
     "resources": "Additional Resources",
     "loading": "Loading guide...",
-    "noStudent": "No student selected"
+    "noStudent": "No student selected",
+    "subtitle": "See how each student learns and get personalized teaching strategies"
   },
   "worksheets": {
     "title": "Worksheets",
@@ -356,14 +416,53 @@
     }
   },
   "parentGuide": {
-    "title": "Parent Guide",
-    "description": "Support your child's learning journey",
+    "title": "Support Strategies",
+    "description": "Personalized support for your child",
     "childProgress": "Child's Progress",
     "tips": "Tips for Parents",
     "activities": "Home Activities",
     "communication": "Teacher Communication",
     "selectChild": "Select a child to view their progress",
-    "noChildren": "No children found"
+    "noChildren": "No children found",
+    "subtitle": "Get expert strategies and activities designed specifically for how your child learns. Updated as they grow."
+  },
+  "parentDashboard": {
+    "title": "Parent Dashboard",
+    "welcome": "Welcome back, {{name}}!",
+    "subtitle": "Here's how {{childName}} is learning and growing",
+    "overview": "Here's an overview of your child's learning journey.",
+    "learningProfile": "Learning Profile",
+    "learningProfileStatus": {
+      "completed": "Completed",
+      "pending": "Pending",
+      "ready": "Profile ready",
+      "getStarted": "Complete snapshot to get started"
+    },
+    "activities": "Activities",
+    "activitiesCompleted": "Completed {{count}} activity",
+    "activitiesCompleted_plural": "Completed {{count}} activities",
+    "recommendations": "Recommendations",
+    "availableStrategies": "Available strategies",
+    "learningProfileSummary": "Learning Profile Summary",
+    "lastUpdated": "Last updated: {{date}}",
+    "recently": "Recently",
+    "strengths": "Strengths",
+    "areasForSupport": "Areas for Support",
+    "quickActions": "Quick Actions",
+    "viewSnapshot": "View Learning Snapshot",
+    "viewStrategies": "View Support Strategies",
+    "viewActivities": "View Daily Activities",
+    "viewChallenges": "View Challenges",
+    "learningSnapshot": "Learning Snapshot",
+    "snapshotDescription": "See your child's strengths, learning style, and areas where they're growing",
+    "supportStrategies": "Support Strategies",
+    "strategiesDescription": "Personalized tips and activities to help your child succeed",
+    "dailyActivities": "Daily Activities",
+    "activitiesDescription": "Fun, engaging activities that reinforce what they're learning",
+    "challenges": "Adaptability Challenges",
+    "challengesDescription": "Build resilience and flexibility with age-appropriate challenges",
+    "noLinkedStudents": "No Linked Students",
+    "noLinkedDescription": "Your email ({{email}}) is not linked to any students yet. Please contact your child's teacher to have your email added to their student profile."
   },
   "studentGuide": {
     "title": "Student Profile",
@@ -489,5 +588,100 @@
     },
     "helpText": "Take your time and answer honestly. There are no right or wrong answers.",
     "selectAnswer": "Please select an answer before continuing"
+  },
+  "parentActivities": {
+    "title": "Daily Activities",
+    "description": "Activities that work for your child",
+    "noActivities": "No activities available",
+    "noActivitiesDescription": "Activities will appear here once your child's learning profile is complete.",
+    "filterByTime": "Filter by Time",
+    "filterByType": "Filter by Type",
+    "searchActivities": "Search activities...",
+    "allTime": "All Time",
+    "short": "Short (5-10 min)",
+    "medium": "Medium (15-20 min)",
+    "long": "Long (30+ min)",
+    "allTypes": "All Types",
+    "strength": "Strength Building",
+    "support": "Support",
+    "flexibility": "Flexibility",
+    "general": "General",
+    "markComplete": "Mark Complete",
+    "markIncomplete": "Mark Incomplete",
+    "activityUnmarked": "Activity unmarked",
+    "activityUnmarkedDescription": "You can try this activity again!",
+    "activityCompleted": "Activity Completed",
+    "activityCompletedDescription": "Great job supporting your child's learning!",
+    "failedToSave": "Failed to save activity completion",
+    "failedToLoad": "Failed to load activities. Showing sample activities.",
+    "selectChildFirst": "Please select a child first",
+    "duration": "Duration",
+    "materials": "Materials",
+    "steps": "Steps",
+    "type": "Type",
+    "completed": "Completed"
+  },
+  "parentChallenges": {
+    "title": "Adaptability Challenges",
+    "description": "Build resilience and flexibility with age-appropriate challenges",
+    "selectChildFirst": "Please select a child first",
+    "challengesAccepted": "Challenges Accepted",
+    "activeChallenges": "Active Challenges",
+    "completedChallenges": "Completed Challenges",
+    "forParents": "For Parents:",
+    "filterChallenges": "Filter Challenges",
+    "allPillars": "All Pillars",
+    "allLevels": "All Levels",
+    "allFormats": "All Formats",
+    "allMoods": "All Moods",
+    "challengesFound": "{{count}} Challenge Found",
+    "challengesFound_plural": "{{count}} Challenges Found",
+    "challengesAvailable": "{{count}} challenges available",
+    "viewChallenges": "View Challenges",
+    "challengeStarted": "Challenge Started! ✅",
+    "challengeCompleted": "Challenge Completed! 🎉",
+    "startChallenge": "Start Challenge",
+    "completeChallenge": "Complete Challenge",
+    "active": "Active",
+    "completed": "Completed",
+    "notStarted": "Not Started"
+  },
+  "parentLearningSnapshot": {
+    "title": "Learning Snapshot",
+    "description": "Your child's learning profile",
+    "completeSnapshot": "Complete a Learning Snapshot assessment to understand your child's unique learning profile, strengths, and areas for growth.",
+    "startSnapshot": "Start Learning Snapshot",
+    "assessmentType": "Assessment Type",
+    "lastAssessment": "Last Assessment",
+    "cognitiveDomains": "Cognitive Domains",
+    "learningStyle": "Learning Style",
+    "processingSpeed": "Processing Speed",
+    "workingMemory": "Working Memory",
+    "attentionFocus": "Attention & Focus",
+    "selfEfficacy": "Self-Efficacy",
+    "motivation": "Motivation",
+    "tryChallenges": "Try Adaptability Challenges",
+    "viewChallenges": "View Challenges",
+    "browseActivities": "Browse Daily Activities",
+    "browseActivitiesLink": "Browse Activities",
+    "retakeAssessment": "Retake Assessment",
+    "backToDashboard": "Back to Dashboard"
+  },
+  "parentCognitiveAssessment": {
+    "title": "Cognitive Assessment",
+    "backToParentGuide": "Back to Parent Guide",
+    "assessmentComplete": "Assessment Complete!",
+    "thankYou": "Thank you for completing the cognitive assessment for {{name}}.",
+    "assessmentNotFound": "Assessment Not Found",
+    "assessmentNotFoundDescription": "This assessment session could not be found or has expired.",
+    "forStudent": "For {{name}}",
+    "parentAssessment": "Parent Assessment",
+    "studentAssessment": "Student Assessment",
+    "voiceAssessmentMode": "Voice Assessment Mode",
+    "parentAccessRequired": "Parent access required"
+  },
+  "sidebar": {
+    "learnAura": "LearnAura",
+    "intelligenceSystem": "Intelligence System"
   }
 }

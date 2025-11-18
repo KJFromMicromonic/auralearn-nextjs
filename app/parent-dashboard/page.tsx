@@ -26,11 +26,13 @@ import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 export default function ParentDashboardPage() {
   const { user, isParent } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+  const { t } = useTranslation();
   const [students, setStudents] = useState<StudentWithClass[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<ParentDashboardData | null>(null);
@@ -133,9 +135,9 @@ export default function ParentDashboardPage() {
                   <Home className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-bold text-foreground">Parent Dashboard</h1>
+                  <h1 className="text-4xl font-bold text-foreground">{t('parentDashboard.title')}</h1>
                   <p className="text-muted-foreground">
-                    Welcome back, {user?.full_name || 'Parent'}! Here's an overview of your child's learning journey.
+                    {t('parentDashboard.welcome', { name: user?.full_name || t('auth.parent') })} {t('parentDashboard.overview')}
                   </p>
                 </div>
               </div>
@@ -146,10 +148,9 @@ export default function ParentDashboardPage() {
               <Card className="border-2 border-dashed">
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No Linked Students</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{t('parentDashboard.noLinkedStudents')}</h3>
                   <p className="text-sm text-muted-foreground text-center max-w-md mb-4">
-                    Your email ({user?.email}) is not linked to any students yet. Please contact your child's teacher
-                    to have your email added to their student profile.
+                    {t('parentDashboard.noLinkedDescription', { email: user?.email || '' })}
                   </p>
                 </CardContent>
               </Card>
@@ -171,47 +172,49 @@ export default function ParentDashboardPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Card className="bg-gradient-to-br from-pastel-mint/20 to-pastel-sky/20 border-none">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Learning Profile</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t('parentDashboard.learningProfile')}</CardTitle>
                       <Brain className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
                         {dashboardData.stats.learningProfileStatus === 'completed' ? (
-                          <span className="text-green-600">Completed</span>
+                          <span className="text-green-600">{t('parentDashboard.learningProfileStatus.completed')}</span>
                         ) : (
-                          <span className="text-orange-600">Pending</span>
+                          <span className="text-orange-600">{t('parentDashboard.learningProfileStatus.pending')}</span>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
                         {dashboardData.stats.learningProfileStatus === 'completed' 
-                          ? 'Profile ready' 
-                          : 'Complete snapshot to get started'}
+                          ? t('parentDashboard.learningProfileStatus.ready')
+                          : t('parentDashboard.learningProfileStatus.getStarted')}
                       </p>
                     </CardContent>
                   </Card>
 
                   <Card className="bg-gradient-to-br from-pastel-lavender/20 to-pastel-coral/20 border-none">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Activities</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t('parentDashboard.activities')}</CardTitle>
                       <BookOpen className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{dashboardData.stats.activitiesCompleted}</div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Completed {dashboardData.stats.activitiesCompleted === 1 ? 'activity' : 'activities'}
+                        {dashboardData.stats.activitiesCompleted === 1 
+                          ? t('parentDashboard.activitiesCompleted', { count: dashboardData.stats.activitiesCompleted })
+                          : t('parentDashboard.activitiesCompleted_plural', { count: dashboardData.stats.activitiesCompleted })}
                       </p>
                     </CardContent>
                   </Card>
 
                   <Card className="bg-gradient-to-br from-pastel-sky/20 to-pastel-mint/20 border-none">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Recommendations</CardTitle>
+                      <CardTitle className="text-sm font-medium">{t('parentDashboard.recommendations')}</CardTitle>
                       <Sparkles className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{dashboardData.stats.recommendationsAvailable}</div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Available strategies
+                        {t('parentDashboard.availableStrategies')}
                       </p>
                     </CardContent>
                   </Card>
@@ -223,12 +226,14 @@ export default function ParentDashboardPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Brain className="w-5 h-5 text-purple-600" />
-                        Learning Profile Summary
+                        {t('parentDashboard.learningProfileSummary')}
                       </CardTitle>
                       <CardDescription>
-                        Last updated: {dashboardData.learningProfile.lastAssessmentDate 
-                          ? new Date(dashboardData.learningProfile.lastAssessmentDate).toLocaleDateString()
-                          : 'Recently'}
+                        {t('parentDashboard.lastUpdated', { 
+                          date: dashboardData.learningProfile.lastAssessmentDate 
+                            ? new Date(dashboardData.learningProfile.lastAssessmentDate).toLocaleDateString()
+                            : t('parentDashboard.recently')
+                        })}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -242,7 +247,7 @@ export default function ParentDashboardPage() {
                         <div>
                           <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                             <TrendingUp className="w-4 h-4 text-green-600" />
-                            Strengths
+                            {t('parentDashboard.strengths')}
                           </h4>
                           <div className="flex flex-wrap gap-2">
                             {dashboardData.learningProfile.primaryStrengths.map((strength, idx) => (
@@ -258,7 +263,7 @@ export default function ParentDashboardPage() {
                         <div>
                           <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                             <Heart className="w-4 h-4 text-blue-600" />
-                            Areas for Support
+                            {t('parentDashboard.areasForSupport')}
                           </h4>
                           <div className="flex flex-wrap gap-2">
                             {dashboardData.learningProfile.areasForSupport.map((area, idx) => (
@@ -275,7 +280,7 @@ export default function ParentDashboardPage() {
                         variant="outline"
                         className="w-full"
                       >
-                        View Full Learning Snapshot
+                        {t('parentDashboard.viewSnapshot')}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
@@ -285,23 +290,22 @@ export default function ParentDashboardPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Brain className="w-5 h-5 text-purple-600" />
-                        Get Started with Learning Snapshot
+                        {t('parentLearningSnapshot.title')}
                       </CardTitle>
                       <CardDescription>
-                        Complete a quick assessment to understand your child's unique learning profile
+                        {t('parentLearningSnapshot.completeSnapshot')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Our Learning Snapshot helps you understand how {selectedStudent.name} learns best. 
-                        It takes about 10-15 minutes and provides personalized recommendations.
+                        {t('parentLearningSnapshot.completeSnapshot')}
                       </p>
                       <Button
                         onClick={() => router.push(`/parent/cognitive-assessment/${selectedStudentId}`)}
                         className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
                       >
                         <Brain className="w-4 h-4 mr-2" />
-                        Start Learning Snapshot
+                        {t('parentLearningSnapshot.startSnapshot')}
                       </Button>
                     </CardContent>
                   </Card>
@@ -314,18 +318,18 @@ export default function ParentDashboardPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Heart className="w-5 h-5 text-pink-600" />
-                        Support Strategies
+                        {t('parentDashboard.supportStrategies')}
                       </CardTitle>
                       <CardDescription>
-                        Get personalized strategies for supporting your child at home
+                        {t('parentDashboard.strategiesDescription')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Access AI-generated strategies, activities, and resources tailored to your child's learning profile.
+                        {t('parentDashboard.strategiesDescription')}
                       </p>
                       <Button variant="outline" className="w-full">
-                        View Strategies
+                        {t('parentDashboard.viewStrategies')}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
@@ -336,18 +340,18 @@ export default function ParentDashboardPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <BookOpen className="w-5 h-5 text-blue-600" />
-                        Daily Activities
+                        {t('parentDashboard.dailyActivities')}
                       </CardTitle>
                       <CardDescription>
-                        Find fun, educational activities to do at home
+                        {t('parentDashboard.activitiesDescription')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Browse activities filtered by time, subject, and materials needed. Perfect for homework support and enrichment.
+                        {t('parentDashboard.activitiesDescription')}
                       </p>
                       <Button variant="outline" className="w-full">
-                        Browse Activities
+                        {t('parentDashboard.viewActivities')}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
@@ -358,18 +362,18 @@ export default function ParentDashboardPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Target className="w-5 h-5 text-purple-600" />
-                        Adaptability Challenges
+                        {t('parentDashboard.challenges')}
                       </CardTitle>
                       <CardDescription>
-                        Build flexibility and resilience through targeted challenges
+                        {t('parentDashboard.challengesDescription')}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Weekly challenges designed to build cognitive flexibility, executive functions, and growth mindset.
+                        {t('parentDashboard.challengesDescription')}
                       </p>
                       <Button variant="outline" className="w-full">
-                        View Challenges
+                        {t('parentDashboard.viewChallenges')}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </CardContent>
@@ -380,12 +384,12 @@ export default function ParentDashboardPage() {
                 {dashboardData.recentActivities.length > 0 && (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Recent Activity</CardTitle>
-                      <CardDescription>Your child's recent learning activities</CardDescription>
+                      <CardTitle>{t('parentDashboard.dailyActivities')}</CardTitle>
+                      <CardDescription>{t('parentDashboard.activitiesDescription')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground text-center py-4">
-                        Activity tracking coming soon!
+                        {t('common.loading')}
                       </p>
                     </CardContent>
                   </Card>

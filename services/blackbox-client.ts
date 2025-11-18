@@ -7,7 +7,7 @@
 import { getEnvVar } from '@/lib/utils';
 
 const BLACKBOX_API_URL = 'https://api.blackbox.ai/chat/completions';
-const BLACKBOX_API_KEY = getEnvVar('VITE_BLACKBOX_API_KEY', '');
+const BLACKBOX_API_KEY = getEnvVar('NEXT_PUBLIC_BLACKBOX_API_KEY', '');
 
 if (!BLACKBOX_API_KEY) {
   console.warn('⚠️ BlackBox API key not configured. AI features will use fallback responses.');

@@ -41,7 +41,13 @@
     "parentGuide": "Guide Parents",
     "studentGuide": "Guide Élève",
     "insights": "Analyses",
-    "signOut": "Se Déconnecter"
+    "signOut": "Se Déconnecter",
+    "parentDashboard": "Tableau de Bord",
+    "learningSnapshot": "Aperçu d'Apprentissage",
+    "supportStrategies": "Stratégies de Soutien",
+    "dailyActivities": "Activités Quotidiennes",
+    "adaptabilityChallenges": "Défis d'Adaptabilité",
+    "intelligenceSystem": "Système d'Intelligence"
   },
   "subjects": {
     "francais": "Français",
@@ -77,33 +83,86 @@
     }
   },
   "home": {
-    "title": "LearnAura",
-    "subtitle": "Système d'Intelligence de Classe",
-    "tagline": "Intelligence de Classe Alimentée par l'IA",
-    "description": "Adaptez l'apprentissage à chaque élève instantanément grâce à l'intelligence de classe en temps réel. Profilage comportemental, évaluations adaptatives et regroupement intelligent.",
-    "teacherLogin": "Connexion Enseignant",
-    "parentLogin": "Connexion Parent",
+    "title": "AuraLearn",
+    "subtitle": "Le Coach d'Apprentissage Personnel de Votre Enfant",
+    "tagline": "Coach d'Apprentissage Alimenté par l'IA",
+    "description": "Chaque enfant apprend différemment. AuraLearn comprend le style d'apprentissage unique de votre enfant et fournit des conseils personnalisés, des activités et des stratégies de soutien—pour que vous puissiez les aider à s'épanouir à la maison et à l'école.",
+    "heroDescription": "La plateforme alimentée par l'IA qui aide les parents et les enseignants à comprendre comment chaque enfant apprend, afin que chaque élève puisse atteindre son plein potentiel.",
+    "teacherLogin": "Je suis Enseignant",
+    "parentLogin": "Je suis Parent",
     "goToDashboard": "Aller au Tableau de Bord",
     "noAccount": "Vous n'avez pas de compte ?",
     "signUpHere": "Inscrivez-vous ici",
+    "forParents": {
+      "title": "Pour les Parents",
+      "subtitle": "Soutenez le Parcours d'Apprentissage de Votre Enfant",
+      "description": "Comprenez enfin comment votre enfant apprend le mieux. Obtenez des stratégies personnalisées, des activités quotidiennes et des conseils d'experts adaptés au style d'apprentissage unique de votre enfant—le tout en un seul endroit.",
+      "benefits": [
+        "Découvrez les forces et les besoins d'apprentissage de votre enfant",
+        "Obtenez des stratégies de soutien personnalisées à utiliser à la maison",
+        "Accédez à des activités quotidiennes adaptées à la façon dont votre enfant apprend",
+        "Suivez les progrès et célébrez la croissance ensemble"
+      ]
+    },
+    "forTeachers": {
+      "title": "Pour les Enseignants",
+      "subtitle": "Personnalisez l'Apprentissage pour Chaque Élève",
+      "description": "Comprenez comment chaque élève apprend et obtenez des stratégies d'enseignement alimentées par l'IA qui s'adaptent à leurs besoins. Créez une instruction différenciée qui aide chaque enfant à réussir.",
+      "benefits": [
+        "Identifiez le profil d'apprentissage unique de chaque élève",
+        "Générez instantanément des stratégies d'enseignement personnalisées",
+        "Créez des fiches de travail et activités différenciées",
+        "Suivez les progrès des élèves et ajustez l'instruction"
+      ]
+    },
+    "forStudents": {
+      "title": "Comment les Élèves Bénéficient",
+      "subtitle": "Un Apprentissage Adapté à Leur Façon d'Apprendre",
+      "description": "Quand les parents et les enseignants comprennent comment un enfant apprend, la magie opère. Les élèves obtiennent le soutien dont ils ont besoin, quand ils en ont besoin, de manière qui fonctionne pour eux.",
+      "benefits": [
+        "Apprennent de manière qui correspond à leurs forces naturelles",
+        "Reçoivent un soutien adapté à leurs besoins",
+        "Développent la confiance grâce à des activités personnalisées",
+        "S'épanouissent à la maison et en classe"
+      ]
+    },
     "features": {
       "adaptiveAssessment": {
-        "title": "Évaluation Adaptive",
-        "description": "8-10 questions qui s'adaptent au niveau de chaque élève"
+        "title": "Comprenez Votre Enfant",
+        "description": "Découvrez comment votre enfant apprend le mieux avec des évaluations personnalisées qui révèlent son style d'apprentissage unique, ses forces et ses domaines de croissance."
       },
       "behavioralProfiles": {
-        "title": "Profils Comportementaux",
-        "description": "Plus de 10 modèles d'apprentissage détectés automatiquement"
+        "title": "Coaching Personnalisé",
+        "description": "Obtenez des stratégies et activités adaptées spécifiquement au style d'apprentissage de votre enfant, mises à jour au fur et à mesure qu'ils grandissent et apprennent."
       },
       "smartGrouping": {
-        "title": "Regroupement Intelligent",
-        "description": "Regroupement automatique à 3 niveaux avec fiches contextuelles"
+        "title": "Soutien à la Maison",
+        "description": "Activités quotidiennes et défis qui renforcent ce qu'ils apprennent à l'école, parfaitement adaptés à la façon dont votre enfant apprend le mieux."
+      }
+    },
+    "howItWorks": {
+      "title": "Comment Ça Marche",
+      "step1": {
+        "title": "Évaluer",
+        "description": "Complétez une évaluation rapide pour comprendre le style d'apprentissage de votre enfant"
+      },
+      "step2": {
+        "title": "Découvrir",
+        "description": "Obtenez des informations sur les forces, les préférences d'apprentissage et les domaines de croissance"
+      },
+      "step3": {
+        "title": "Soutenir",
+        "description": "Recevez des stratégies et activités personnalisées adaptées à votre enfant"
+      },
+      "step4": {
+        "title": "S'Épanouir",
+        "description": "Regardez votre enfant grandir avec un apprentissage adapté à sa façon d'apprendre"
       }
     }
   },
   "dashboard": {
-    "title": "Tableau de Bord des Élèves",
-    "description": "Aperçus d'évaluation de classe en temps réel - {{count}} élèves",
+    "title": "Votre Tableau de Bord de Coach d'Apprentissage",
+    "description": "Voyez comment chaque élève apprend et obtenez des stratégies d'enseignement personnalisées - {{count}} élèves",
     "loadingStudents": "Chargement des évaluations des élèves...",
     "stats": {
       "struggling": "En Difficulté",
@@ -191,7 +250,7 @@
   },
   "settings": {
     "title": "Paramètres",
-    "description": "Personnalisez votre expérience LearnAura",
+    "description": "Personnalisez votre expérience AuraLearn",
     "theme": {
       "title": "Thème",
       "selectTheme": "Sélectionner le Thème",
@@ -240,9 +299,9 @@
     "teacher": "Enseignant",
     "parent": "Parent",
     "selectRole": "Sélectionnez Votre Rôle",
-    "roleDescription": "Choisissez comment vous utiliserez LearnAura",
-    "teacherDescription": "Créez des classes, évaluez les élèves et suivez les progrès",
-    "parentDescription": "Surveillez le parcours d'apprentissage et les progrès de votre enfant",
+    "roleDescription": "Choisissez comment vous utiliserez AuraLearn",
+    "teacherDescription": "Créez des expériences d'apprentissage personnalisées pour chaque élève",
+    "parentDescription": "Soutenez le parcours d'apprentissage de votre enfant avec un coaching personnalisé",
     "continue": "Continuer",
     "signingIn": "Connexion en cours...",
     "signingUp": "Inscription en cours...",
@@ -332,13 +391,14 @@
   },
   "teachingGuide": {
     "title": "Guide Pédagogique",
-    "description": "Stratégies d'enseignement personnalisées pour vos élèves",
+    "description": "Votre Tableau de Bord de Coach d'Apprentissage - Stratégies d'enseignement personnalisées pour chaque élève",
     "selectStudent": "Sélectionnez un élève pour voir son guide pédagogique",
     "strategies": "Stratégies d'Enseignement",
     "activities": "Activités Recommandées",
     "resources": "Ressources Supplémentaires",
     "loading": "Chargement du guide...",
-    "noStudent": "Aucun élève sélectionné"
+    "noStudent": "Aucun élève sélectionné",
+    "subtitle": "Voyez comment chaque élève apprend et obtenez des stratégies d'enseignement personnalisées"
   },
   "worksheets": {
     "title": "Fiches de Travail",
@@ -356,14 +416,53 @@
     }
   },
   "parentGuide": {
-    "title": "Guide Parents",
-    "description": "Soutenez le parcours d'apprentissage de votre enfant",
+    "title": "Stratégies de Soutien",
+    "description": "Soutien personnalisé pour votre enfant",
     "childProgress": "Progrès de l'Enfant",
     "tips": "Conseils pour les Parents",
     "activities": "Activités à la Maison",
     "communication": "Communication avec l'Enseignant",
     "selectChild": "Sélectionnez un enfant pour voir ses progrès",
-    "noChildren": "Aucun enfant trouvé"
+    "noChildren": "Aucun enfant trouvé",
+    "subtitle": "Obtenez des stratégies et activités d'experts conçues spécifiquement pour la façon dont votre enfant apprend. Mis à jour au fur et à mesure qu'ils grandissent."
+  },
+  "parentDashboard": {
+    "title": "Tableau de Bord Parent",
+    "welcome": "Bon retour, {{name}} !",
+    "subtitle": "Voici comment {{childName}} apprend et grandit",
+    "overview": "Voici un aperçu du parcours d'apprentissage de votre enfant.",
+    "learningProfile": "Profil d'Apprentissage",
+    "learningProfileStatus": {
+      "completed": "Terminé",
+      "pending": "En Attente",
+      "ready": "Profil prêt",
+      "getStarted": "Complétez l'aperçu pour commencer"
+    },
+    "activities": "Activités",
+    "activitiesCompleted": "{{count}} activité complétée",
+    "activitiesCompleted_plural": "{{count}} activités complétées",
+    "recommendations": "Recommandations",
+    "availableStrategies": "Stratégies disponibles",
+    "learningProfileSummary": "Résumé du Profil d'Apprentissage",
+    "lastUpdated": "Dernière mise à jour : {{date}}",
+    "recently": "Récemment",
+    "strengths": "Points Forts",
+    "areasForSupport": "Domaines de Soutien",
+    "quickActions": "Actions Rapides",
+    "viewSnapshot": "Voir l'Aperçu d'Apprentissage",
+    "viewStrategies": "Voir les Stratégies de Soutien",
+    "viewActivities": "Voir les Activités Quotidiennes",
+    "viewChallenges": "Voir les Défis",
+    "learningSnapshot": "Aperçu d'Apprentissage",
+    "snapshotDescription": "Voyez les forces de votre enfant, son style d'apprentissage et les domaines où il progresse",
+    "supportStrategies": "Stratégies de Soutien",
+    "strategiesDescription": "Conseils et activités personnalisés pour aider votre enfant à réussir",
+    "dailyActivities": "Activités Quotidiennes",
+    "activitiesDescription": "Activités amusantes et engageantes qui renforcent ce qu'ils apprennent",
+    "challenges": "Défis d'Adaptabilité",
+    "challengesDescription": "Développez la résilience et la flexibilité avec des défis adaptés à l'âge",
+    "noLinkedStudents": "Aucun Élève Lié",
+    "noLinkedDescription": "Votre e-mail ({{email}}) n'est pas encore lié à des élèves. Veuillez contacter l'enseignant de votre enfant pour que votre e-mail soit ajouté à leur profil d'élève."
   },
   "studentGuide": {
     "title": "Profil de l'Élève",
@@ -489,5 +588,100 @@
     },
     "helpText": "Prenez votre temps et répondez honnêtement. Il n'y a pas de bonnes ou de mauvaises réponses.",
     "selectAnswer": "Veuillez sélectionner une réponse avant de continuer"
+  },
+  "parentActivities": {
+    "title": "Activités Quotidiennes",
+    "description": "Activités adaptées à votre enfant",
+    "noActivities": "Aucune activité disponible",
+    "noActivitiesDescription": "Les activités apparaîtront ici une fois que le profil d'apprentissage de votre enfant sera complété.",
+    "filterByTime": "Filtrer par Durée",
+    "filterByType": "Filtrer par Type",
+    "searchActivities": "Rechercher des activités...",
+    "allTime": "Toutes les Durées",
+    "short": "Court (5-10 min)",
+    "medium": "Moyen (15-20 min)",
+    "long": "Long (30+ min)",
+    "allTypes": "Tous les Types",
+    "strength": "Renforcement",
+    "support": "Soutien",
+    "flexibility": "Flexibilité",
+    "general": "Général",
+    "markComplete": "Marquer comme Terminé",
+    "markIncomplete": "Marquer comme Non Terminé",
+    "activityUnmarked": "Activité non marquée",
+    "activityUnmarkedDescription": "Vous pouvez réessayer cette activité !",
+    "activityCompleted": "Activité Terminée",
+    "activityCompletedDescription": "Excellent travail pour soutenir l'apprentissage de votre enfant !",
+    "failedToSave": "Échec de l'enregistrement de la complétion de l'activité",
+    "failedToLoad": "Échec du chargement des activités. Affichage d'activités d'exemple.",
+    "selectChildFirst": "Veuillez d'abord sélectionner un enfant",
+    "duration": "Durée",
+    "materials": "Matériaux",
+    "steps": "Étapes",
+    "type": "Type",
+    "completed": "Terminé"
+  },
+  "parentChallenges": {
+    "title": "Défis d'Adaptabilité",
+    "description": "Développez la résilience et la flexibilité avec des défis adaptés à l'âge",
+    "selectChildFirst": "Veuillez d'abord sélectionner un enfant",
+    "challengesAccepted": "Défis Acceptés",
+    "activeChallenges": "Défis Actifs",
+    "completedChallenges": "Défis Terminés",
+    "forParents": "Pour les Parents :",
+    "filterChallenges": "Filtrer les Défis",
+    "allPillars": "Tous les Piliers",
+    "allLevels": "Tous les Niveaux",
+    "allFormats": "Tous les Formats",
+    "allMoods": "Toutes les Humeurs",
+    "challengesFound": "{{count}} Défi Trouvé",
+    "challengesFound_plural": "{{count}} Défis Trouvés",
+    "challengesAvailable": "{{count}} défis disponibles",
+    "viewChallenges": "Voir les Défis",
+    "challengeStarted": "Défi Démarré ! ✅",
+    "challengeCompleted": "Défi Terminé ! 🎉",
+    "startChallenge": "Démarrer le Défi",
+    "completeChallenge": "Terminer le Défi",
+    "active": "Actif",
+    "completed": "Terminé",
+    "notStarted": "Non Démarré"
+  },
+  "parentLearningSnapshot": {
+    "title": "Aperçu d'Apprentissage",
+    "description": "Le profil d'apprentissage de votre enfant",
+    "completeSnapshot": "Complétez une évaluation d'Aperçu d'Apprentissage pour comprendre le profil d'apprentissage unique de votre enfant, ses forces et ses domaines de croissance.",
+    "startSnapshot": "Commencer l'Aperçu d'Apprentissage",
+    "assessmentType": "Type d'Évaluation",
+    "lastAssessment": "Dernière Évaluation",
+    "cognitiveDomains": "Domaines Cognitifs",
+    "learningStyle": "Style d'Apprentissage",
+    "processingSpeed": "Vitesse de Traitement",
+    "workingMemory": "Mémoire de Travail",
+    "attentionFocus": "Attention & Concentration",
+    "selfEfficacy": "Auto-Efficacité",
+    "motivation": "Motivation",
+    "tryChallenges": "Essayer les Défis d'Adaptabilité",
+    "viewChallenges": "Voir les Défis",
+    "browseActivities": "Parcourir les Activités Quotidiennes",
+    "browseActivitiesLink": "Parcourir les Activités",
+    "retakeAssessment": "Repasser l'Évaluation",
+    "backToDashboard": "Retour au Tableau de Bord"
+  },
+  "parentCognitiveAssessment": {
+    "title": "Évaluation Cognitive",
+    "backToParentGuide": "Retour au Guide Parent",
+    "assessmentComplete": "Évaluation Terminée !",
+    "thankYou": "Merci d'avoir complété l'évaluation cognitive pour {{name}}.",
+    "assessmentNotFound": "Évaluation Non Trouvée",
+    "assessmentNotFoundDescription": "Cette session d'évaluation est introuvable ou a expiré.",
+    "forStudent": "Pour {{name}}",
+    "parentAssessment": "Évaluation Parent",
+    "studentAssessment": "Évaluation Élève",
+    "voiceAssessmentMode": "Mode d'Évaluation Vocale",
+    "parentAccessRequired": "Accès parent requis"
+  },
+  "sidebar": {
+    "learnAura": "LearnAura",
+    "intelligenceSystem": "Système d'Intelligence"
   }
 }
