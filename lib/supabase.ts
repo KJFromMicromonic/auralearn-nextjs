@@ -103,10 +103,14 @@ export type StudentCategory =
   | 'fast_processor'
   | 'high_energy'
   | 'visual_learner'
+  | 'auditory_learner'
+  | 'kinesthetic_learner'
   | 'logical_learner'
   | 'sensitive_low_confidence'
   | 'easily_distracted'
-  | 'needs_repetition';
+  | 'needs_repetition'
+  | 'social_learner'
+  | 'independent_learner';
 
 export type ResourceType = 'article' | 'blog' | 'pdf' | 'video' | 'website';
 
@@ -215,10 +219,14 @@ export const categoryDisplayNames: Record<StudentCategory, string> = {
   fast_processor: 'Fast Processor',
   high_energy: 'High Energy / Needs Movement',
   visual_learner: 'Visual Learner',
+  auditory_learner: 'Auditory Learner',
+  kinesthetic_learner: 'Kinesthetic Learner',
   logical_learner: 'Logical Learner',
   sensitive_low_confidence: 'Sensitive / Low Confidence',
   easily_distracted: 'Easily Distracted',
   needs_repetition: 'Needs Repetition',
+  social_learner: 'Social Learner',
+  independent_learner: 'Independent Learner',
 };
 
 // Helper function to map category to icon
@@ -227,8 +235,12 @@ export const categoryIcons: Record<StudentCategory, string> = {
   fast_processor: 'zap',
   high_energy: 'activity',
   visual_learner: 'eye',
+  auditory_learner: 'volume2',
+  kinesthetic_learner: 'hand',
   logical_learner: 'brain',
   sensitive_low_confidence: 'heart',
   easily_distracted: 'target',
   needs_repetition: 'repeat',
+  social_learner: 'users',
+  independent_learner: 'user',
 };
