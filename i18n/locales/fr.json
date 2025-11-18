@@ -1,0 +1,493 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "import": "Importer",
+    "upload": "Télécharger",
+    "download": "Télécharger",
+    "view": "Voir",
+    "create": "Créer",
+    "update": "Mettre à jour",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non",
+    "optional": "optionnel",
+    "saving": "Enregistrement...",
+    "class": "Classe"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "createClass": "Créer une Classe",
+    "assessment": "Évaluation",
+    "auraVoice": "AuraVoice",
+    "dashboard": "Tableau de Bord",
+    "learningCategories": "Catégories d'Apprentissage",
+    "teachingGuide": "Guide Pédagogique",
+    "worksheets": "Fiches de Travail",
+    "settings": "Paramètres",
+    "parentGuide": "Guide Parents",
+    "studentGuide": "Guide Élève",
+    "insights": "Analyses",
+    "signOut": "Se Déconnecter"
+  },
+  "subjects": {
+    "francais": "Français",
+    "langues_vivantes": "Langues Vivantes",
+    "arts_plastiques": "Arts Plastiques",
+    "education_musicale": "Éducation Musicale",
+    "histoire_des_arts": "Histoire des Arts",
+    "education_physique_sportive": "Éducation Physique et Sportive",
+    "enseignement_moral_civique": "Enseignement Moral et Civique",
+    "histoire_geographie": "Histoire et Géographie",
+    "sciences_technologie": "Sciences et Technologie",
+    "mathematiques": "Mathématiques"
+  },
+  "onboarding": {
+    "title": "Complétez Votre Profil",
+    "description": "Aidez-nous à personnaliser votre expérience d'enseignement en partageant quelques détails sur votre domaine d'enseignement.",
+    "primarySubject": "Matière Principale",
+    "selectSubject": "Sélectionnez votre matière principale",
+    "subjectHelp": "Cela sera utilisé pour générer des évaluations et des ressources ciblées pour vos élèves.",
+    "primaryGradeLevel": "Niveau Scolaire Principal",
+    "selectGradeLevel": "Sélectionnez votre niveau scolaire principal",
+    "gradeLevelHelp": "Choisissez le niveau que vous enseignez principalement.",
+    "schoolName": "Nom de l'École",
+    "schoolNamePlaceholder": "Entrez le nom de votre école",
+    "complete": "Terminer la Configuration",
+    "completing": "Finalisation...",
+    "success": "Profil complété avec succès !",
+    "error": "Échec de la complétion du profil. Veuillez réessayer.",
+    "note": "Note",
+    "noteText": "Vous pouvez mettre à jour ces préférences à tout moment dans vos Paramètres.",
+    "validation": {
+      "requiredFields": "Veuillez remplir tous les champs obligatoires"
+    }
+  },
+  "home": {
+    "title": "LearnAura",
+    "subtitle": "Système d'Intelligence de Classe",
+    "tagline": "Intelligence de Classe Alimentée par l'IA",
+    "description": "Adaptez l'apprentissage à chaque élève instantanément grâce à l'intelligence de classe en temps réel. Profilage comportemental, évaluations adaptatives et regroupement intelligent.",
+    "teacherLogin": "Connexion Enseignant",
+    "parentLogin": "Connexion Parent",
+    "goToDashboard": "Aller au Tableau de Bord",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "signUpHere": "Inscrivez-vous ici",
+    "features": {
+      "adaptiveAssessment": {
+        "title": "Évaluation Adaptive",
+        "description": "8-10 questions qui s'adaptent au niveau de chaque élève"
+      },
+      "behavioralProfiles": {
+        "title": "Profils Comportementaux",
+        "description": "Plus de 10 modèles d'apprentissage détectés automatiquement"
+      },
+      "smartGrouping": {
+        "title": "Regroupement Intelligent",
+        "description": "Regroupement automatique à 3 niveaux avec fiches contextuelles"
+      }
+    }
+  },
+  "dashboard": {
+    "title": "Tableau de Bord des Élèves",
+    "description": "Aperçus d'évaluation de classe en temps réel - {{count}} élèves",
+    "loadingStudents": "Chargement des évaluations des élèves...",
+    "stats": {
+      "struggling": "En Difficulté",
+      "needsAttention": "Nécessite Attention",
+      "onTrack": "Sur la Bonne Voie",
+      "advanced": "Avancé",
+      "notAssessed": "Non Évalué",
+      "avgScore": "Score Moyen"
+    },
+    "classHeatmap": "Carte Thermique de la Classe",
+    "detailedStudentList": "Liste Détaillée des Élèves",
+    "notTested": "Non testé",
+    "level": "Niveau",
+    "score": "Score",
+    "assessments": "évaluation",
+    "assessments_plural": "évaluations",
+    "reassessSoon": "Réévaluer Bientôt",
+    "profile": "Profil",
+    "downloadReport": "Télécharger le Rapport",
+    "generatingReport": "Génération du Rapport",
+    "pleaseWait": "Veuillez patienter...",
+    "reportGenerated": "Rapport Généré",
+    "reportDownloaded": "Rapport téléchargé pour {{name}}",
+    "reportGenerationFailed": "Échec de la Génération du Rapport",
+    "noAssessmentFound": "Aucune Évaluation Trouvée",
+    "studentNotAssessed": "Cet élève n'a pas encore été évalué",
+    "generateClassReport": "Générer le Rapport de Classe",
+    "generatingClassReport": "Génération du Rapport de Classe",
+    "classReportGenerated": "Rapport de Classe Généré",
+    "classReportDownloaded": "Rapport de classe téléchargé",
+    "classReportGenerationFailed": "Échec de la Génération du Rapport de Classe",
+    "noClassesFound": "Aucune Classe Trouvée",
+    "createClassFirst": "Veuillez d'abord créer une classe",
+    "noRecentAssessments": "Aucune Évaluation Récente",
+    "noAssessmentsLast30Days": "Aucune évaluation trouvée au cours des 30 derniers jours",
+    "viewClassInsights": "Voir les Analyses de Classe",
+
+    "noStudents": {
+      "title": "Aucun Élève Trouvé",
+      "description": "Créez une classe et ajoutez des élèves pour commencer à suivre les données d'évaluation.",
+      "action": "Créer une Classe"
+    },
+    "categories": {
+      "slow_processing": "Traitement Lent",
+      "fast_processor": "Traitement Rapide",
+      "high_energy": "Haute Énergie",
+      "visual_learner": "Apprenant Visuel",
+      "logical_learner": "Apprenant Logique",
+      "sensitive_low_confidence": "Sensible/Faible Confiance",
+      "easily_distracted": "Facilement Distrait",
+      "needs_repetition": "Besoin de Répétition",
+      "average_learner": "Apprenant Moyen",
+      "not_assessed": "Non évalué"
+    }
+  },
+  "assessment": {
+    "title": "Liens d'Évaluation des Élèves",
+    "description": "Partagez ces liens avec vos élèves pour qu'ils complètent leurs évaluations",
+    "loadingClasses": "Chargement des classes...",
+    "assessmentLink": "Lien d'Évaluation",
+    "copyLink": "Copier le Lien",
+    "copied": "Copié !",
+    "openLink": "Ouvrir le Lien",
+    "students": "élèves",
+    "student": "élève",
+    "howToUse": "📋 Comment utiliser :",
+    "instructions": {
+      "step1": "Copiez le lien d'évaluation ci-dessus",
+      "step2": "Partagez-le avec vos élèves par e-mail, LMS ou plateforme de classe",
+      "step3": "Les élèves sélectionneront leur nom et compléteront l'évaluation",
+      "step4": "Consultez les résultats dans votre Tableau de Bord une fois les évaluations terminées"
+    },
+    "createNewClass": "Créer une Nouvelle Classe",
+    "viewDashboard": "Voir le Tableau de Bord",
+    "noClasses": {
+      "title": "Aucune Classe Trouvée",
+      "description": "Créez d'abord une classe pour générer des liens d'évaluation pour vos élèves.",
+      "action": "Créer Votre Première Classe"
+    },
+    "linkCopied": "Lien d'évaluation copié dans le presse-papiers !",
+    "linkCopyFailed": "Échec de la copie du lien",
+    "loadFailed": "Échec du chargement des classes",
+    "generatingQuestions": "Génération de questions IA...",
+    "questionsGenerated": "Questions générées avec succès !"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "description": "Personnalisez votre expérience LearnAura",
+    "theme": {
+      "title": "Thème",
+      "selectTheme": "Sélectionner le Thème",
+      "light": "Clair",
+      "dark": "Sombre",
+      "futuristic": "Futuriste",
+      "highContrast": "Contraste Élevé"
+    },
+    "language": {
+      "title": "Langue",
+      "selectLanguage": "Sélectionner la Langue",
+      "description": "Choisissez votre langue préférée pour l'interface",
+      "english": "English",
+      "french": "Français"
+    },
+    "profile": {
+      "title": "Profil Utilisateur",
+      "uploadPhoto": "Télécharger une Photo",
+      "photoRecommendation": "Recommandé : 400x400px, max 2 Mo"
+    },
+    "teacherProfile": {
+      "title": "Profil d'Enseignement",
+      "currentSubject": "Matière actuelle",
+      "currentGrade": "Niveau scolaire actuel",
+      "updateSuccess": "Profil d'enseignement mis à jour avec succès !",
+      "updateError": "Échec de la mise à jour du profil d'enseignement. Veuillez réessayer."
+    },
+    "dataManagement": {
+      "title": "Gestion des Données",
+      "exportClassData": "Exporter les Données de Classe",
+      "clearAssessmentHistory": "Effacer l'Historique d'Évaluation"
+    }
+  },
+  "auth": {
+    "signIn": "Se Connecter",
+    "signUp": "S'Inscrire",
+    "email": "E-mail",
+    "password": "Mot de Passe",
+    "fullName": "Nom Complet",
+    "confirmPassword": "Confirmer le Mot de Passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "hasAccount": "Vous avez déjà un compte ?",
+    "signInHere": "Connectez-vous ici",
+    "signUpHere": "Inscrivez-vous ici",
+    "teacher": "Enseignant",
+    "parent": "Parent",
+    "selectRole": "Sélectionnez Votre Rôle",
+    "roleDescription": "Choisissez comment vous utiliserez LearnAura",
+    "teacherDescription": "Créez des classes, évaluez les élèves et suivez les progrès",
+    "parentDescription": "Surveillez le parcours d'apprentissage et les progrès de votre enfant",
+    "continue": "Continuer",
+    "signingIn": "Connexion en cours...",
+    "signingUp": "Inscription en cours...",
+    "welcomeBack": "Bon retour !",
+    "createAccount": "Créez votre compte"
+  },
+  "createClass": {
+    "title": "Créer une Classe",
+    "description": "Configurez votre classe pour commencer l'évaluation",
+    "className": "Nom de la Classe",
+    "classNamePlaceholder": "ex. Mathématiques 5e année",
+    "addStudents": "Ajouter des Élèves",
+    "studentNamePlaceholder": "Entrez le nom de l'élève (requis)",
+    "parentEmail": "E-mail du Parent (Optionnel)",
+    "parentEmailPlaceholder": "parent@email.com",
+    "secondParentEmail": "2e E-mail du Parent (Optionnel)",
+    "secondParentEmailPlaceholder": "parent2@email.com",
+    "addStudent": "Ajouter un Élève",
+    "uploadCSV": "Télécharger CSV",
+    "students": "Élèves",
+    "studentAdded": "{{name}} ajouté à la classe",
+    "studentRemoved": "Élève retiré",
+    "parentEmailsUpdated": "E-mails des parents mis à jour",
+    "proceedToAssessment": "Passer à l'Évaluation",
+    "loadingClassData": "Chargement des données de classe...",
+    "enterClassName": "Veuillez entrer un nom de classe",
+    "addAtLeastOneStudent": "Veuillez ajouter au moins un élève",
+    "enterClassNameFirst": "Veuillez d'abord entrer un nom de classe",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "csvUpload": {
+      "title": "Télécharger une Classe depuis CSV",
+      "description": "Téléchargez un fichier CSV avec les informations des élèves. Le fichier doit avoir les colonnes : Nom, E-mail Parent, 2e E-mail Parent",
+      "selectFile": "Sélectionner le Fichier CSV",
+      "format": "Format CSV :",
+      "uploadCSVFile": "Veuillez télécharger un fichier CSV",
+      "successfullyAdded": "{{count}} élèves ajoutés avec succès",
+      "noValidStudents": "Aucun élève valide trouvé dans le CSV",
+      "failedToProcess": "Échec du traitement du fichier CSV",
+      "uploadButton": "Télécharger les Élèves",
+      "fileSelected": "Fichier sélectionné : {{filename}}",
+      "selectFileFirst": "Veuillez d'abord sélectionner un fichier CSV"
+    },
+    "errors": {
+      "failedToLoad": "Échec du chargement des données de classe",
+      "failedToCreate": "Échec de la création de la classe",
+      "failedToAdd": "Échec de l'ajout de l'élève",
+      "failedToRemove": "Échec de la suppression de l'élève",
+      "failedToUpdate": "Échec de la mise à jour des e-mails des parents"
+    }
+  },
+  "studentSelection": {
+    "title": "Bienvenue à l'Évaluation LearnAura",
+    "description": "Veuillez sélectionner votre nom pour commencer",
+    "searchPlaceholder": "Recherchez votre nom...",
+    "startAssessment": "Commencer l'Évaluation",
+    "noStudents": "Aucun élève trouvé dans cette classe",
+    "contactTeacher": "Veuillez contacter votre enseignant",
+    "loading": "Chargement des élèves...",
+    "selectStudent": "Veuillez sélectionner votre nom"
+  },
+  "studentAssessment": {
+    "title": "Évaluation",
+    "question": "Question {{current}} sur {{total}}",
+    "submitAnswer": "Soumettre la Réponse",
+    "nextQuestion": "Question Suivante",
+    "finishAssessment": "Terminer l'Évaluation",
+    "completed": "Évaluation Terminée !",
+    "thankYou": "Merci d'avoir complété l'évaluation.",
+    "resultsAvailable": "Votre enseignant examinera vos résultats.",
+    "loading": "Chargement de l'évaluation...",
+    "submitting": "Soumission en cours...",
+    "selectAnswer": "Veuillez sélectionner une réponse"
+  },
+  "insights": {
+    "title": "Analyses de Classe",
+    "description": "Analyse alimentée par l'IA de votre classe",
+    "loading": "Génération des analyses...",
+    "noData": "Pas assez de données pour générer des analyses",
+    "refresh": "Actualiser les Analyses",
+    "categories": {
+      "performance": "Aperçu des Performances",
+      "trends": "Tendances d'Apprentissage",
+      "recommendations": "Recommandations",
+      "grouping": "Regroupements Suggérés"
+    }
+  },
+  "teachingGuide": {
+    "title": "Guide Pédagogique",
+    "description": "Stratégies d'enseignement personnalisées pour vos élèves",
+    "selectStudent": "Sélectionnez un élève pour voir son guide pédagogique",
+    "strategies": "Stratégies d'Enseignement",
+    "activities": "Activités Recommandées",
+    "resources": "Ressources Supplémentaires",
+    "loading": "Chargement du guide...",
+    "noStudent": "Aucun élève sélectionné"
+  },
+  "worksheets": {
+    "title": "Fiches de Travail",
+    "description": "Générez des fiches de travail adaptatives pour vos élèves",
+    "generate": "Générer une Fiche",
+    "download": "Télécharger",
+    "print": "Imprimer",
+    "selectLevel": "Sélectionner le Niveau de Difficulté",
+    "selectTopic": "Sélectionner le Sujet",
+    "generating": "Génération de la fiche...",
+    "difficulty": {
+      "easy": "Facile",
+      "medium": "Moyen",
+      "hard": "Difficile"
+    }
+  },
+  "parentGuide": {
+    "title": "Guide Parents",
+    "description": "Soutenez le parcours d'apprentissage de votre enfant",
+    "childProgress": "Progrès de l'Enfant",
+    "tips": "Conseils pour les Parents",
+    "activities": "Activités à la Maison",
+    "communication": "Communication avec l'Enseignant",
+    "selectChild": "Sélectionnez un enfant pour voir ses progrès",
+    "noChildren": "Aucun enfant trouvé"
+  },
+  "studentGuide": {
+    "title": "Profil de l'Élève",
+    "backToDashboard": "Retour au Tableau de Bord",
+    "learningProfile": "Profil d'Apprentissage",
+    "assessmentHistory": "Historique d'Évaluation",
+    "strengths": "Points Forts",
+    "areasForGrowth": "Domaines à Améliorer",
+    "recommendations": "Recommandations",
+    "loading": "Chargement du profil de l'élève...",
+    "noData": "Aucune donnée d'évaluation disponible pour le moment"
+  },
+  "notifications": {
+    "error": "Une erreur s'est produite",
+    "success": "Opération réussie",
+    "saved": "Modifications enregistrées",
+    "deleted": "Supprimé avec succès",
+    "updated": "Mis à jour avec succès",
+    "created": "Créé avec succès"
+  },
+  "errors": {
+    "generic": "Une erreur s'est produite. Veuillez réessayer.",
+    "network": "Erreur réseau. Veuillez vérifier votre connexion.",
+    "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action.",
+    "notFound": "La ressource demandée n'a pas été trouvée.",
+    "validation": "Veuillez vérifier votre saisie et réessayer."
+  },
+  "cognitiveAssessment": {
+    "title": "Évaluations Cognitives",
+    "description": "Partagez les liens d'évaluation cognitive avec les élèves et les parents - 15 questions sur 6 domaines cognitifs validés",
+    "loadingClasses": "Chargement des classes...",
+    "banner": {
+      "title": "Évaluation Cognitive Basée sur la Recherche",
+      "description": "15 questions sur 6 domaines validés : Vitesse de Traitement, Mémoire de Travail, Attention & Concentration, Style d'Apprentissage, Auto-Efficacité et Motivation. Basé sur MSLQ, BRIEF-2, WISC-V et les principes UDL.",
+      "triangulation": "Triangulation : Les élèves complètent l'auto-évaluation, les parents complètent l'évaluation d'observation, et les résultats sont triangulés pour identifier les écarts et obtenir des informations plus approfondies."
+    },
+    "noClasses": {
+      "title": "Aucune Classe Trouvée",
+      "description": "Créez d'abord une classe pour commencer les évaluations cognitives",
+      "action": "Créer Votre Première Classe"
+    },
+    "classCard": {
+      "students": "élèves",
+      "student": "élève",
+      "previewQuestions": "Aperçu des 15 Questions Cognitives",
+      "generatingQuestions": "Génération des Questions...",
+      "individualLinks": "Liens Individuels (Sécurisés)",
+      "classWideLink": "Lien pour Toute la Classe",
+      "secureDescription": "Liens d'évaluation cognitive sécurisés et personnalisés pour chaque élève",
+      "downloadCSV": "Télécharger CSV",
+      "copyLink": "Copier le Lien",
+      "copied": "Copié !",
+      "regenerate": "Régénérer",
+      "openLink": "Ouvrir le Lien",
+      "classWideLinkLabel": "Lien d'Évaluation Cognitive pour Toute la Classe",
+      "classWideWarning": "Note : Ce lien permet à n'importe quel élève de sélectionner n'importe quel nom. Utilisez des liens individuels pour une meilleure sécurité et un meilleur suivi.",
+      "howToUse": "Comment utiliser :",
+      "instructions": {
+        "step1": "Copiez le lien ci-dessus",
+        "step2": "Partagez avec les élèves/parents par e-mail ou LMS",
+        "step3": "Les élèves complètent l'auto-évaluation (15 questions)",
+        "step4": "Les parents complètent l'évaluation d'observation",
+        "step5": "Consultez les résultats triangulés dans le Tableau de Bord"
+      }
+    },
+    "preview": {
+      "title": "Aperçu de l'Évaluation Cognitive",
+      "description": "Aperçu des 15 questions pour {{className}}. Les élèves et les parents verront ces questions lorsqu'ils passeront l'évaluation.",
+      "question": "Question {{number}}",
+      "studentFr": "Élève (FR) :",
+      "parentFr": "Parent (FR) :",
+      "studentEn": "Anglais (Élève) :",
+      "parentEn": "Anglais (Parent) :",
+      "research": "Recherche :",
+      "reverseScored": "Score Inversé",
+      "generateNew": "Générer de Nouvelles Questions",
+      "closePreview": "Fermer l'Aperçu"
+    },
+    "actions": {
+      "createNewClass": "Créer une Nouvelle Classe",
+      "viewDashboard": "Voir le Tableau de Bord"
+    },
+    "toast": {
+      "generatingQuestions": "Génération des questions d'évaluation cognitive...",
+      "questionsGenerated": "Questions cognitives générées avec succès !",
+      "questionsFailed": "Échec de la génération des questions. Veuillez vérifier la configuration de votre clé API.",
+      "linkCopied": "{{label}} copié dans le presse-papiers !",
+      "linkCopyFailed": "Échec de la copie du lien",
+      "tokenRegenerated": "Nouveau jeton généré pour {{name}}",
+      "tokenRegenerateFailed": "Échec de la régénération du jeton",
+      "csvDownloaded": "CSV téléchargé avec succès !",
+      "loadClassesFailed": "Échec du chargement des classes",
+      "loadStudentsFailed": "Échec du chargement des élèves"
+    }
+  },
+  "studentCognitiveAssessment": {
+    "title": "Évaluation Cognitive",
+    "loading": "Chargement...",
+    "question": "Question {{current}} sur {{total}}",
+    "textMode": "Mode Texte",
+    "voiceMode": "Mode Vocal (Bientôt Disponible)",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "complete": "Terminer",
+    "submitting": "Soumission en cours...",
+    "completed": {
+      "title": "Évaluation Terminée !",
+      "description": "Merci d'avoir complété l'évaluation cognitive.",
+      "message": "Votre enseignant examinera vos réponses et fournira des stratégies d'apprentissage personnalisées.",
+      "returnHome": "Retour à l'Accueil"
+    },
+    "notFound": {
+      "title": "Évaluation Non Trouvée",
+      "description": "Cette session d'évaluation est introuvable ou a expiré.",
+      "returnHome": "Retour à l'Accueil"
+    },
+    "likertScale": {
+      "1": "Pas du tout comme moi",
+      "2": "Un peu comme moi",
+      "3": "Parfois comme moi",
+      "4": "Souvent comme moi",
+      "5": "Exactement comme moi"
+    },
+    "helpText": "Prenez votre temps et répondez honnêtement. Il n'y a pas de bonnes ou de mauvaises réponses.",
+    "selectAnswer": "Veuillez sélectionner une réponse avant de continuer"
+  }
+}
