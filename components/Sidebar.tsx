@@ -1,4 +1,7 @@
-import { Link, useLocation } from "react-router-dom";
+'use client';
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Home, Users, FileCheck, LayoutDashboard, BookOpen, FileText, Settings, Heart, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +17,7 @@ const navigation = [
 ];
 
 export default function Sidebar() {
-  const location = useLocation();
+  const pathname = usePathname();
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-card border-r border-border flex flex-col">
@@ -32,13 +35,13 @@ export default function Sidebar() {
 
       <nav className="flex-1 px-4 space-y-1">
         {navigation.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = pathname === item.path;
           const Icon = item.icon;
           
           return (
             <Link
               key={item.path}
-              to={item.path}
+              href={item.path}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300",
                 isActive
