@@ -1,12 +1,12 @@
 /**
- * Cognitive Assessment Management Page (Teacher Interface)
+ * Learning Snapshot Management Page (Teacher Interface)
  * 
- * Similar to Academic Assessment, but for cognitive/learning profile assessments
+ * Similar to Academic Assessment, but for learning profile snapshots
  * Allows teachers to:
- * - Generate cognitive assessment links for students
- * - Preview the 15 cognitive questions
- * - Send parent assessment links
- * - View triangulation results
+ * - Generate learning snapshot links for students
+ * - Preview the 15 learning profile questions
+ * - Send parent observation links
+ * - View triangulation results with learning insights
  */
 
 'use client';
@@ -55,7 +55,7 @@ import {
   generateTriangulationReport,
   type TriangulationReport,
   type AssessmentResult
-} from '@/services/cognitive-assessment-service';
+} from '@/services/learning-profile-service';
 
 interface Class {
   id: string;
@@ -65,7 +65,7 @@ interface Class {
   student_count: number;
 }
 
-export default function CognitiveAssessment() {
+export default function LearningSnapshot() {
   const router = useRouter();
   const { user } = useAuth();
   const [classes, setClasses] = useState<Class[]>([]);

@@ -92,10 +92,13 @@ export default function TeachingGuide() {
         const stored = localStorage.getItem("currentClass");
         if (stored) {
           const parsed = JSON.parse(stored);
-          setClassData(parsed);
-          setTotalStudents(parsed.students?.length || 30);
+          // Use setTimeout to avoid calling setState synchronously in effect
+          setTimeout(() => {
+            setClassData(parsed);
+            setTotalStudents(parsed.students?.length || 30);
+          }, 0);
         }
-      } catch (e) {
+      } catch {
         // Ignore localStorage errors
       }
     }

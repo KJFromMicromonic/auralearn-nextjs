@@ -1,8 +1,9 @@
 /**
- * Gemini 2.5 Flash - Cognitive Assessment Generator
+ * Gemini 2.5 Flash - Learning Profile Generator
  * 
- * Generates research-backed cognitive assessments for students (8-12 years, CM1/CM2)
- * with parallel parent observation versions.
+ * Generates research-backed learning profile questions for students (8-12 years, CM1/CM2)
+ * to understand classroom learning needs, pacing preferences, engagement patterns, and support preferences.
+ * Includes parallel parent observation versions.
  * 
  * Research Framework:
  * - MSLQ (Motivated Strategies for Learning Questionnaire)
@@ -24,7 +25,7 @@ const getApiKey = () => {
 const genAI = new GoogleGenerativeAI(getApiKey());
 
 /**
- * Cognitive domains based on validated research instruments
+ * Learning support areas based on validated research instruments
  */
 export type CognitiveDomain = 
   | 'processing_speed'
@@ -35,7 +36,7 @@ export type CognitiveDomain =
   | 'motivation_engagement';
 
 /**
- * Individual cognitive question structure
+ * Individual learning profile question structure
  */
 export interface CognitiveQuestion {
   id: number;
@@ -49,7 +50,7 @@ export interface CognitiveQuestion {
 }
 
 /**
- * Complete cognitive assessment (15 questions)
+ * Complete learning profile (15 questions)
  */
 export interface CognitiveAssessment {
   questions: CognitiveQuestion[];
@@ -73,11 +74,11 @@ export interface DomainInterpretation {
 }
 
 /**
- * Generate a complete 15-question cognitive assessment
+ * Generate a complete 15-question learning profile
  * 
  * @param language - Target language for generation context
  * @param gradeLevel - Student grade level (CM1 or CM2)
- * @returns Complete cognitive assessment with 15 questions
+ * @returns Complete learning profile with 15 questions
  */
 export async function generateCognitiveAssessment(
   language: 'en' | 'fr' = 'fr',
@@ -89,7 +90,7 @@ export async function generateCognitiveAssessment(
 
     const prompt = buildCognitivePrompt(language, gradeLevel);
 
-    console.log('Generating cognitive assessment with Gemini 2.5 Flash...');
+    console.log('Generating learning profile questions with Gemini 2.5 Flash...');
     
     const result = await model.generateContent(prompt);
     const response = result.response;
@@ -112,8 +113,8 @@ export async function generateCognitiveAssessment(
       },
     };
   } catch (error) {
-    console.error('Error generating cognitive assessment:', error);
-    throw new Error('Failed to generate cognitive assessment. Please try again.');
+    console.error('Error generating learning profile:', error);
+    throw new Error('Failed to generate learning profile. Please try again.');
   }
 }
 
@@ -125,11 +126,19 @@ function buildCognitivePrompt(language: 'en' | 'fr', gradeLevel: string): string
     ? 'Generate all questions in both French and English, with French as the primary language.'
     : 'Generate all questions in both English and French, with English as the primary language.';
 
-  return `You are an expert educational psychologist specializing in cognitive assessment for children aged 8-12 years (French CM1/CM2 level).
+  return `You are an expert educational psychologist specializing in understanding children's learning needs and support preferences for ages 8-12 years (French CM1/CM2 level).
 
 ${languageInstruction}
 
-Generate EXACTLY 15 cognitive assessment questions based on validated research instruments:
+Generate EXACTLY 15 learning profile questions to understand classroom learning needs, pacing preferences, engagement patterns, and support preferences. These questions help identify:
+- How students learn best in the classroom
+- What pacing works for them
+- How they stay engaged
+- What supports they need (visual aids, step-by-step instructions, examples)
+- Balance between challenge and support
+- Executive function supports needed
+
+Questions are based on validated research instruments:
 - MSLQ (Motivated Strategies for Learning Questionnaire)
 - BRIEF-2 (Behavior Rating Inventory of Executive Function)
 - WISC-V behavioral correlates
@@ -138,17 +147,17 @@ Generate EXACTLY 15 cognitive assessment questions based on validated research i
 
 CRITICAL REQUIREMENTS:
 
-1. EXACTLY 15 QUESTIONS distributed across 6 domains:
-   - Processing Speed (Q1-3): 3 questions
-   - Working Memory (Q4-5): 2 questions
-   - Attention & Focus (Q6-8): 3 questions
-   - Learning Style Preference (Q9-11): 3 questions
-   - Self-Efficacy & Confidence (Q12-13): 2 questions
-   - Motivation & Engagement (Q14-15): 2 questions
+1. EXACTLY 15 QUESTIONS distributed across 6 learning support areas:
+   - Processing Speed & Pacing (Q1-3): 3 questions about how quickly they process information and preferred pacing
+   - Working Memory & Instructions (Q4-5): 2 questions about remembering instructions and multi-step tasks
+   - Attention & Engagement (Q6-8): 3 questions about staying focused and engagement patterns
+   - Learning Preferences & Supports (Q9-11): 3 questions about visual aids, examples, demonstrations, and preferred learning approaches
+   - Self-Efficacy & Confidence (Q12-13): 2 questions about belief in abilities and willingness to try challenges
+   - Motivation & Persistence (Q14-15): 2 questions about interest in learning and persistence with challenges
 
 2. PARALLEL VERSIONS:
-   - Student version: First person ("I understand quickly")
-   - Parent version: Third person ("My child understands quickly")
+   - Student version: First person ("I understand quickly when the teacher explains")
+   - Parent version: Third person ("My child understands quickly when the teacher explains")
    - MUST be identical in meaning, only pronoun changes
 
 3. CHILD-FRIENDLY LANGUAGE:
@@ -156,6 +165,7 @@ CRITICAL REQUIREMENTS:
    - Simple, clear sentences
    - Avoid complex vocabulary
    - Use concrete examples from school life
+   - Focus on learning experiences, not diagnostic language
 
 4. LIKERT SCALE (same for all questions):
    1 = Not at all like me / Pas du tout comme moi
@@ -166,7 +176,7 @@ CRITICAL REQUIREMENTS:
 
 5. REVERSE SCORING:
    - Include 3-4 reverse-scored items (marked with "reverse": true)
-   - Example: "I need extra time to finish my work" (higher score = slower processing)
+   - Example: "I need extra time to finish my work" (higher score = needs more time/support)
 
 6. RESEARCH BASIS:
    - Each question must cite its research foundation
@@ -186,45 +196,51 @@ EXAMPLE QUESTION FORMAT:
   "parent_fr": "Quand la maîtresse explique quelque chose, mon enfant comprend vite.",
   "parent_en": "When the teacher explains something, my child understands quickly.",
   "reverse": false,
-  "research_basis": "WISC-V Processing Speed Index - measures speed of mental processing"
+  "research_basis": "WISC-V Processing Speed Index - identifies pacing preferences for classroom instruction"
 }
 
-DOMAIN GUIDELINES:
+LEARNING SUPPORT AREA GUIDELINES:
 
-Processing Speed (Q1-3):
-- Speed of understanding new information
+Processing Speed & Pacing (Q1-3):
+- How quickly they understand new information in class
 - Time needed to complete tasks
-- Quick vs. careful work style
+- Preference for quick pace vs. careful, methodical work
+- Classroom pacing needs
 Research: WISC-V Processing Speed, BRIEF-2 Processing Speed
 
-Working Memory (Q4-5):
-- Remembering instructions
-- Holding information while working
-- Following multi-step directions
+Working Memory & Instructions (Q4-5):
+- Remembering multi-step instructions
+- Holding information while working on tasks
+- Need for written instructions vs. verbal only
+- Support needs for following directions
 Research: WISC-V Working Memory Index, BRIEF-2 Working Memory
 
-Attention & Focus (Q6-8):
+Attention & Engagement (Q6-8):
 - Staying focused during lessons
-- Distractibility
-- Sustained attention
+- Distractibility in classroom settings
+- Sustained attention patterns
+- Engagement strategies that work
 Research: BRIEF-2 Inhibit/Shift scales, ADHD rating scales
 
-Learning Style Preference (Q9-11):
-- Visual vs. auditory vs. kinesthetic
-- Preference for examples/demonstrations
-- Learning through doing
+Learning Preferences & Supports (Q9-11):
+- Preference for visual aids, examples, demonstrations
+- Learning through doing vs. listening vs. seeing
+- Support preferences (step-by-step, visual aids, concrete examples)
+- How they learn best
 Research: UDL principles, Learning styles research
 
 Self-Efficacy & Confidence (Q12-13):
-- Belief in own abilities
-- Confidence in learning
+- Belief in own learning abilities
+- Confidence when facing new challenges
 - Willingness to try difficult tasks
+- Support needed to build confidence
 Research: Bandura's self-efficacy scales, Academic self-concept measures
 
-Motivation & Engagement (Q14-15):
-- Interest in learning
-- Persistence with challenges
-- Intrinsic vs. extrinsic motivation
+Motivation & Persistence (Q14-15):
+- Interest in learning and school
+- Persistence when work is challenging
+- Intrinsic vs. extrinsic motivation patterns
+- What keeps them engaged
 Research: MSLQ Motivation scales, Self-Determination Theory
 
 Return ONLY a valid JSON array with exactly 15 questions. No markdown, no code blocks, no explanations.
@@ -379,7 +395,7 @@ function parseCognitiveResponse(text: string): CognitiveQuestion[] {
     if (error instanceof SyntaxError) {
       throw new Error(`Failed to parse JSON from Gemini response: ${error.message}`);
     }
-    throw new Error(`Failed to parse cognitive assessment questions from Gemini response: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(`Failed to parse learning profile questions from Gemini response: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

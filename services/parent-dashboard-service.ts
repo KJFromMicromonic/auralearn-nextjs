@@ -8,7 +8,7 @@
  */
 
 import { supabase } from '@/lib/supabase';
-import { AssessmentResult } from './cognitive-assessment-service';
+import { AssessmentResult } from './learning-profile-service';
 
 export interface LearningProfileSummary {
   hasAssessment: boolean;

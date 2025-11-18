@@ -23,7 +23,7 @@ export default function ParentSignInPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Parent Sign In</h1>
-          <p className="text-muted-foreground">Support your child's learning journey</p>
+          <p className="text-muted-foreground">Support your child&apos;s learning journey</p>
         </div>
 
         <SignIn

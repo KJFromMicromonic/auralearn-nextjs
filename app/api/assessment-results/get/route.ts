@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch assessment result
     const { data, error } = await supabaseAdmin
-      .from('cognitive_assessment_results')
+      .from('learning_profile_results')
       .select('*')
       .eq('student_id', studentId)
       .order('calculated_at', { ascending: false })

@@ -112,13 +112,13 @@ export default function ParentGuidePage() {
                 <CardHeader>
                   <CardTitle className="text-lg">Welcome, {user?.full_name || 'Parent'}!</CardTitle>
                   <CardDescription>
-                    Here's how you can support your {students.length === 1 ? "child's" : "children's"} unique learning style at home
+                    Here&apos;s how you can support your {students.length === 1 ? "child&apos;s" : "children&apos;s"} unique learning style at home
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     Every child learns differently. These personalized guides provide practical, easy-to-implement
-                    strategies based on your child's learning profile and current classroom topics. No complex
+                    strategies based on your child&apos;s learning profile and current classroom topics. No complex
                     jargon - just simple, effective ways to help your child thrive.
                   </p>
                 </CardContent>
@@ -215,7 +215,7 @@ export default function ParentGuidePage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BookOpen className="w-5 h-5 text-primary" />
-                    What You'll Find in Each Guide
+                    What You&apos;ll Find in Each Guide
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

@@ -1,13 +1,13 @@
 /**
- * Cognitive Assessment Service
+ * Learning Profile Service
  * 
- * Handles all business logic for cognitive assessments:
- * - Initiating assessments (student & parent)
+ * Handles all business logic for learning profiles (formerly cognitive assessments):
+ * - Initiating learning snapshots (student & parent)
  * - Managing parent access links
  * - Storing responses
- * - Calculating domain scores
- * - Generating triangulation reports
- * - Managing 15-day assessment schedule
+ * - Calculating learning support area scores
+ * - Generating triangulation reports with learning insights
+ * - Managing 15-day profile update schedule
  */
 
 import { supabase } from '@/lib/supabase';
@@ -24,13 +24,13 @@ import {
 } from './gemini-cognitive-generator';
 
 /**
- * Assessment types
+ * Learning snapshot types
  */
 export type AssessmentType = 'student' | 'parent';
 export type AssessmentStatus = 'pending' | 'in_progress' | 'completed' | 'expired';
 
 /**
- * Cognitive assessment session
+ * Learning profile session
  */
 export interface CognitiveAssessmentSession {
   id: string;
@@ -45,7 +45,7 @@ export interface CognitiveAssessmentSession {
 }
 
 /**
- * Assessment response
+ * Learning profile response
  */
 export interface AssessmentResponse {
   question_id: number;
@@ -56,7 +56,7 @@ export interface AssessmentResponse {
 }
 
 /**
- * Domain score result
+ * Learning support area score result
  */
 export interface DomainScore {
   domain: CognitiveDomain;
@@ -66,7 +66,7 @@ export interface DomainScore {
 }
 
 /**
- * Complete assessment result
+ * Complete learning insights result
  */
 export interface AssessmentResult {
   id: string;
@@ -121,12 +121,12 @@ export interface Agreement {
 }
 
 /**
- * Check if student needs cognitive assessment (15-day schedule)
+ * Check if student needs learning profile update (15-day schedule)
  */
 export async function needsCognitiveAssessment(studentId: string): Promise<boolean> {
   try {
     const { data, error } = await supabase
-      .rpc('needs_cognitive_assessment', { p_student_id: studentId });
+      .rpc('needs_learning_profile', { p_student_id: studentId });
 
     if (error) throw error;
     return data === true;
@@ -137,12 +137,12 @@ export async function needsCognitiveAssessment(studentId: string): Promise<boole
 }
 
 /**
- * Get next assessment date for student
+ * Get next learning profile update date for student
  */
 export async function getNextAssessmentDate(studentId: string): Promise<Date | null> {
   try {
     const { data, error } = await supabase
-      .from('cognitive_assessment_schedule')
+      .from('learning_profile_schedule')
       .select('next_assessment_date')
       .eq('student_id', studentId)
       .single();
@@ -160,12 +160,12 @@ export async function getNextAssessmentDate(studentId: string): Promise<Date | n
 }
 
 /**
- * Initiate a new cognitive assessment
+ * Initiate a new learning snapshot
  * 
  * @param studentId - Student UUID
  * @param assessmentType - 'student' or 'parent'
  * @param language - 'en' or 'fr'
- * @returns Assessment session with questions
+ * @returns Learning profile session with questions
  */
 export async function initiateCognitiveAssessment(
   studentId: string,
@@ -178,7 +178,7 @@ export async function initiateCognitiveAssessment(
   try {
     // Check if questions already exist for this student
     const { data: existingQuestions, error: questionsError } = await supabase
-      .from('cognitive_assessment_questions')
+      .from('learning_profile_questions')
       .select('*')
       .eq('student_id', studentId)
       .gt('expires_at', new Date().toISOString())
@@ -196,13 +196,13 @@ export async function initiateCognitiveAssessment(
       console.log('Using existing questions for student:', studentId);
     } else {
       // Generate new questions
-      console.log('Generating new cognitive assessment questions...');
+      console.log('Generating new learning profile questions...');
       const assessment = await generateCognitiveAssessment(language, 'CM1');
       questions = assessment.questions;
 
       // Store questions in database
       const { data: newQuestions, error: insertError } = await supabase
-        .from('cognitive_assessment_questions')
+        .from('learning_profile_questions')
         .insert({
           student_id: studentId,
           questions: questions,
@@ -218,7 +218,7 @@ export async function initiateCognitiveAssessment(
 
     // Create assessment session
     const { data: session, error: sessionError } = await supabase
-      .from('cognitive_assessments')
+      .from('learning_profiles')
       .insert({
         student_id: studentId,
         questions_id: questionsId,
@@ -231,20 +231,20 @@ export async function initiateCognitiveAssessment(
 
     if (sessionError) throw sessionError;
 
-    console.log('Cognitive assessment session created:', session.id);
+    console.log('Learning profile session created:', session.id);
 
     return {
       session: session as CognitiveAssessmentSession,
       questions,
     };
   } catch (error) {
-    console.error('Error initiating cognitive assessment:', error);
-    throw new Error('Failed to initiate cognitive assessment');
+    console.error('Error initiating learning snapshot:', error);
+    throw new Error('Failed to initiate learning snapshot');
   }
 }
 
 /**
- * Start an assessment session (mark as in_progress)
+ * Start a learning snapshot session (mark as in_progress)
  */
 export async function startAssessment(
   assessmentId: string,
@@ -252,7 +252,7 @@ export async function startAssessment(
 ): Promise<void> {
   try {
     const { error } = await supabase
-      .from('cognitive_assessments')
+      .from('learning_profiles')
       .update({
         status: 'in_progress',
         started_at: new Date().toISOString(),
@@ -269,7 +269,7 @@ export async function startAssessment(
 }
 
 /**
- * Normalize domain value to match database enum
+ * Normalize learning support area value to match database enum
  * Maps variations like "learning_style_preference" to "learning_style"
  */
 function normalizeDomain(domain: string | CognitiveDomain): CognitiveDomain {
@@ -343,7 +343,7 @@ export async function submitResponse(
     }
     
     const { error } = await supabase
-      .from('cognitive_assessment_responses')
+      .from('learning_profile_responses')
       .insert({
         assessment_id: assessmentId,
         question_id: response.question_id,
@@ -372,10 +372,10 @@ export async function submitResponse(
 }
 
 /**
- * Complete an assessment and calculate results
+ * Complete a learning snapshot and calculate learning insights
  * 
  * This function now calls an API route that uses the service role key
- * to bypass RLS policies, since students/parents complete assessments anonymously.
+ * to bypass RLS policies, since students/parents complete snapshots anonymously.
  */
 export async function completeAssessment(
   assessmentId: string
@@ -396,7 +396,7 @@ export async function completeAssessment(
     }
 
     const { result } = await response.json();
-    console.log('Assessment completed and results calculated:', result.id);
+    console.log('Learning snapshot completed and insights calculated:', result.id);
 
     return result as AssessmentResult;
   } catch (error) {
@@ -444,7 +444,7 @@ function calculateConfidenceScore(responses: AssessmentResponse[]): number {
 }
 
 /**
- * Generate parent assessment link
+ * Generate parent learning snapshot link
  */
 export async function generateParentLink(
   studentId: string,
@@ -456,7 +456,7 @@ export async function generateParentLink(
   try {
     // Get or create questions for student
     const { data: existingQuestions } = await supabase
-      .from('cognitive_assessment_questions')
+      .from('learning_profile_questions')
       .select('id')
       .eq('student_id', studentId)
       .gt('expires_at', new Date().toISOString())
@@ -472,7 +472,7 @@ export async function generateParentLink(
       // Generate new questions
       const assessment = await generateCognitiveAssessment('fr', 'CM1');
       const { data: newQuestions, error } = await supabase
-        .from('cognitive_assessment_questions')
+        .from('learning_profile_questions')
         .insert({
           student_id: studentId,
           questions: assessment.questions,
@@ -527,7 +527,7 @@ export async function validateParentToken(
   try {
     const { data: link, error } = await supabase
       .from('parent_assessment_links')
-      .select('*, cognitive_assessment_questions(*)')
+      .select('*, learning_profile_questions(*)')
       .eq('access_token', token)
       .single();
 
@@ -550,7 +550,7 @@ export async function validateParentToken(
     return {
       valid: true,
       studentId: link.student_id,
-      questions: link.cognitive_assessment_questions.questions as CognitiveQuestion[],
+      questions: link.learning_profile_questions.questions as CognitiveQuestion[],
     };
   } catch (error) {
     console.error('Error validating parent token:', error);
@@ -559,12 +559,12 @@ export async function validateParentToken(
 }
 
 /**
- * Get the latest assessment result for a student
+ * Get the latest learning insights for a student
  * Uses API route to bypass RLS issues
  * 
  * @param studentId - Student UUID
  * @param clerkId - Clerk user ID (required for authentication)
- * @returns Latest assessment result or null if none exists
+ * @returns Latest learning insights or null if none exists
  */
 export async function getAssessmentResult(
   studentId: string,
@@ -608,7 +608,7 @@ export async function generateTriangulationReport(
   try {
     // Get latest student assessment
     const { data: studentAssessment } = await supabase
-      .from('cognitive_assessment_results')
+      .from('learning_profile_results')
       .select('*')
       .eq('student_id', studentId)
       .eq('assessment_type', 'student')
@@ -618,7 +618,7 @@ export async function generateTriangulationReport(
 
     // Get latest parent assessment
     const { data: parentAssessment } = await supabase
-      .from('cognitive_assessment_results')
+      .from('learning_profile_results')
       .select('*')
       .eq('student_id', studentId)
       .eq('assessment_type', 'parent')
@@ -634,7 +634,7 @@ export async function generateTriangulationReport(
       .single();
 
     if (!studentAssessment && !parentAssessment) {
-      throw new Error('No assessments found for triangulation');
+      throw new Error('No learning snapshots found for triangulation');
     }
 
     // Compare domains
@@ -661,7 +661,7 @@ export async function generateTriangulationReport(
 
     // Store triangulation analysis
     const { error: analysisError } = await supabase
-      .from('cognitive_triangulation_analysis')
+      .from('learning_profile_triangulation_analysis')
       .insert({
         student_id: studentId,
         student_assessment_id: studentAssessment?.assessment_id,
@@ -698,7 +698,7 @@ export async function generateTriangulationReport(
 }
 
 /**
- * Compare domain scores between student and parent
+ * Compare learning support area scores between student and parent
  */
 function compareDomains(
   studentScores?: Record<CognitiveDomain, number>,
@@ -848,3 +848,4 @@ function generateRecommendedActions(
 
   return actions;
 }
+

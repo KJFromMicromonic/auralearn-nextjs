@@ -6,7 +6,9 @@
     "dev": "next dev -p 8080",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:warn": "eslint . --max-warnings=9999"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.55.0",

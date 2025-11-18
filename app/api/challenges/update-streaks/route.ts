@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 
       let newCurrentStreak = 1;
       let newLongestStreak = 1;
-      let lastActivityDate = today;
+      const lastActivityDate = today;
 
       if (currentStreak && !fetchError) {
         // Check if streak should continue or reset

@@ -11,7 +11,9 @@ import { generateCognitiveAssessment } from '@/services/gemini-cognitive-generat
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    let { language = 'fr', gradeLevel = 'CM1' } = body;
+    const { language: inputLanguage = 'fr', gradeLevel: inputGradeLevel = 'CM1' } = body;
+    let language = inputLanguage;
+    let gradeLevel = inputGradeLevel;
 
     // Normalize and validate grade level - default to CM1 if null, undefined, or invalid
     if (!gradeLevel || (gradeLevel !== 'CM1' && gradeLevel !== 'CM2')) {

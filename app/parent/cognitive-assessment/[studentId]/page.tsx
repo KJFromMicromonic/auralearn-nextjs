@@ -27,7 +27,7 @@ import {
   Mic,
   Type,
 } from 'lucide-react';
-import { submitResponse, completeAssessment } from '@/services/cognitive-assessment-service';
+import { submitResponse, completeAssessment } from '@/services/learning-profile-service';
 import type { CognitiveQuestion } from '@/services/gemini-cognitive-generator';
 import { 
   getLiveKitToken, 
@@ -152,7 +152,7 @@ export default function ParentCognitiveAssessment() {
 
       // Check if questions already exist for this student (can be reused for both student and parent assessments)
       const { data: existingQuestions, error: questionsError } = await supabase
-        .from('cognitive_assessment_questions')
+        .from('learning_profile_questions')
         .select('*')
         .eq('student_id', selectedStudentId)
         .gt('expires_at', new Date().toISOString())
@@ -178,9 +178,9 @@ export default function ParentCognitiveAssessment() {
         );
         questions = assessment.questions;
 
-        // Save questions to cognitive_assessment_questions table
+        // Save questions to learning_profile_questions table
         const { data: questionsRecord, error: questionsInsertError } = await supabase
-          .from('cognitive_assessment_questions')
+          .from('learning_profile_questions')
           .insert({
             student_id: selectedStudentId,
             questions: questions,
@@ -205,7 +205,7 @@ export default function ParentCognitiveAssessment() {
 
       // Check if assessment already exists for this student (student or parent type)
       const { data: existingAssessments, error: assessmentError } = await supabase
-        .from('cognitive_assessments')
+        .from('learning_profiles')
         .select('*')
         .eq('student_id', selectedStudentId)
         .eq('assessment_type', assessmentType)  // Use the selected assessment type
@@ -229,7 +229,7 @@ export default function ParentCognitiveAssessment() {
       } else {
         // Create new assessment (student or parent type)
         const { data: newAssessment, error: createError } = await supabase
-          .from('cognitive_assessments')
+          .from('learning_profiles')
           .insert({
             student_id: selectedStudentId,
             questions_id: questionsId,  // Reference to the questions set
@@ -265,7 +265,7 @@ export default function ParentCognitiveAssessment() {
 
       // Load existing responses if any
       const { data: existingResponses } = await supabase
-        .from('cognitive_assessment_responses')
+        .from('learning_profile_responses')
         .select('question_id, response_value')
         .eq('assessment_id', assessmentId);
 

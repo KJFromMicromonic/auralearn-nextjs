@@ -491,33 +491,33 @@
     "validation": "Please check your input and try again."
   },
   "cognitiveAssessment": {
-    "title": "Cognitive Assessments",
-    "description": "Share cognitive assessment links with students and parents - 15 questions across 6 validated cognitive domains",
+    "title": "Learning Snapshots",
+    "description": "Share learning snapshot links with students and parents - 15 questions across 6 learning support areas",
     "loadingClasses": "Loading classes...",
     "banner": {
-      "title": "Research-Backed Cognitive Assessment",
-      "description": "15 questions across 6 validated domains: Processing Speed, Working Memory, Attention & Focus, Learning Style, Self-Efficacy, and Motivation. Based on MSLQ, BRIEF-2, WISC-V, and UDL principles.",
-      "triangulation": "Triangulation: Students complete self-assessment, parents complete observation assessment, and results are triangulated to identify discrepancies and gain deeper insights."
+      "title": "Research-Backed Learning Profile Builder",
+      "description": "15 questions across 6 learning support areas: Processing Speed & Pacing, Working Memory & Instructions, Attention & Engagement, Learning Preferences & Supports, Self-Efficacy & Confidence, and Motivation & Persistence. Based on MSLQ, BRIEF-2, WISC-V, and UDL principles.",
+      "triangulation": "Triangulation: Students complete self-assessment, parents complete observation assessment, and learning insights are triangulated to identify support needs and gain deeper understanding."
     },
     "noClasses": {
       "title": "No Classes Found",
-      "description": "Create a class first to start cognitive assessments",
+      "description": "Create a class first to start learning snapshots",
       "action": "Create Your First Class"
     },
     "classCard": {
       "students": "students",
       "student": "student",
-      "previewQuestions": "Preview 15 Cognitive Questions",
+      "previewQuestions": "Preview 15 Learning Profile Questions",
       "generatingQuestions": "Generating Questions...",
       "individualLinks": "Individual Links (Secure)",
       "classWideLink": "Class-Wide Link",
-      "secureDescription": "Secure, personalized cognitive assessment links for each student",
+      "secureDescription": "Secure, personalized learning snapshot links for each student",
       "downloadCSV": "Download CSV",
       "copyLink": "Copy Link",
       "copied": "Copied!",
       "regenerate": "Regenerate",
       "openLink": "Open Link",
-      "classWideLinkLabel": "Class-Wide Cognitive Assessment Link",
+      "classWideLinkLabel": "Class-Wide Learning Snapshot Link",
       "classWideWarning": "Note: This link allows any student to select any name. Use individual links for better security and tracking.",
       "howToUse": "How to use:",
       "instructions": {
@@ -525,12 +525,12 @@
         "step2": "Share with students/parents via email or LMS",
         "step3": "Students complete self-assessment (15 questions)",
         "step4": "Parents complete observation assessment",
-        "step5": "View triangulated results in Dashboard"
+        "step5": "View learning insights in Dashboard"
       }
     },
     "preview": {
-      "title": "Cognitive Assessment Preview",
-      "description": "Preview of 15 questions for {{className}}. Students and parents will see these questions when they take the assessment.",
+      "title": "Learning Snapshot Preview",
+      "description": "Preview of 15 questions for {{className}}. Students and parents will see these questions when they take the learning snapshot.",
       "question": "Question {{number}}",
       "studentFr": "Student (FR):",
       "parentFr": "Parent (FR):",
@@ -546,8 +546,8 @@
       "viewDashboard": "View Dashboard"
     },
     "toast": {
-      "generatingQuestions": "Generating cognitive assessment questions...",
-      "questionsGenerated": "Cognitive questions generated successfully!",
+      "generatingQuestions": "Generating learning profile questions...",
+      "questionsGenerated": "Learning profile questions generated successfully!",
       "questionsFailed": "Failed to generate questions. Please check your API key configuration.",
       "linkCopied": "{{label}} copied to clipboard!",
       "linkCopyFailed": "Failed to copy link",
@@ -559,7 +559,7 @@
     }
   },
   "studentCognitiveAssessment": {
-    "title": "Cognitive Assessment",
+    "title": "Learning Snapshot",
     "loading": "Loading...",
     "question": "Question {{current}} of {{total}}",
     "textMode": "Text Mode",
@@ -569,14 +569,14 @@
     "complete": "Complete",
     "submitting": "Submitting...",
     "completed": {
-      "title": "Assessment Complete!",
-      "description": "Thank you for completing the cognitive assessment.",
-      "message": "Your teacher will review your responses and provide personalized learning strategies.",
+      "title": "Learning Snapshot Complete!",
+      "description": "Thank you for completing the learning snapshot.",
+      "message": "Your teacher will review your responses and provide personalized learning support recommendations.",
       "returnHome": "Return to Home"
     },
     "notFound": {
-      "title": "Assessment Not Found",
-      "description": "This assessment session could not be found or has expired.",
+      "title": "Learning Snapshot Not Found",
+      "description": "This learning snapshot session could not be found or has expired.",
       "returnHome": "Return to Home"
     },
     "likertScale": {
@@ -649,35 +649,35 @@
   "parentLearningSnapshot": {
     "title": "Learning Snapshot",
     "description": "Your child's learning profile",
-    "completeSnapshot": "Complete a Learning Snapshot assessment to understand your child's unique learning profile, strengths, and areas for growth.",
+    "completeSnapshot": "Complete a Learning Snapshot to understand your child's unique learning profile, strengths, and areas for growth.",
     "startSnapshot": "Start Learning Snapshot",
-    "assessmentType": "Assessment Type",
-    "lastAssessment": "Last Assessment",
-    "cognitiveDomains": "Cognitive Domains",
-    "learningStyle": "Learning Style",
-    "processingSpeed": "Processing Speed",
-    "workingMemory": "Working Memory",
-    "attentionFocus": "Attention & Focus",
-    "selfEfficacy": "Self-Efficacy",
-    "motivation": "Motivation",
+    "assessmentType": "Snapshot Type",
+    "lastAssessment": "Last Learning Snapshot",
+    "cognitiveDomains": "Learning Support Areas",
+    "learningStyle": "Learning Preferences & Supports",
+    "processingSpeed": "Processing Speed & Pacing",
+    "workingMemory": "Working Memory & Instructions",
+    "attentionFocus": "Attention & Engagement",
+    "selfEfficacy": "Self-Efficacy & Confidence",
+    "motivation": "Motivation & Persistence",
     "tryChallenges": "Try Adaptability Challenges",
     "viewChallenges": "View Challenges",
     "browseActivities": "Browse Daily Activities",
     "browseActivitiesLink": "Browse Activities",
-    "retakeAssessment": "Retake Assessment",
+    "retakeAssessment": "Retake Learning Snapshot",
     "backToDashboard": "Back to Dashboard"
   },
   "parentCognitiveAssessment": {
-    "title": "Cognitive Assessment",
+    "title": "Learning Snapshot",
     "backToParentGuide": "Back to Parent Guide",
-    "assessmentComplete": "Assessment Complete!",
-    "thankYou": "Thank you for completing the cognitive assessment for {{name}}.",
-    "assessmentNotFound": "Assessment Not Found",
-    "assessmentNotFoundDescription": "This assessment session could not be found or has expired.",
+    "assessmentComplete": "Learning Snapshot Complete!",
+    "thankYou": "Thank you for completing the learning snapshot for {{name}}.",
+    "assessmentNotFound": "Learning Snapshot Not Found",
+    "assessmentNotFoundDescription": "This learning snapshot session could not be found or has expired.",
     "forStudent": "For {{name}}",
-    "parentAssessment": "Parent Assessment",
-    "studentAssessment": "Student Assessment",
-    "voiceAssessmentMode": "Voice Assessment Mode",
+    "parentAssessment": "Parent Observation",
+    "studentAssessment": "Student Self-Assessment",
+    "voiceAssessmentMode": "Voice Learning Snapshot Mode",
     "parentAccessRequired": "Parent access required"
   },
   "sidebar": {

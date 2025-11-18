@@ -23,7 +23,7 @@ export default function ParentSignUpPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Start Your Home Learning Journey</h1>
-          <p className="text-muted-foreground">Get personalized support strategies for your child's unique learning needs</p>
+          <p className="text-muted-foreground">Get personalized support strategies for your child&apos;s unique learning needs</p>
         </div>
 
         <SignUp

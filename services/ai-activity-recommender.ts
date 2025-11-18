@@ -7,7 +7,7 @@
 
 import { generateStructuredResponse } from './mistralai-client';
 import { ActivityWithSource, ActivityLog, getActivityHistory, getActivityStats } from './parent-activity-service';
-import { AssessmentResult, getAssessmentResult } from './cognitive-assessment-service';
+import { AssessmentResult, getAssessmentResult } from './learning-profile-service';
 import { StudentWithClass } from './student-service';
 
 export interface ActivityRecommendationParams {

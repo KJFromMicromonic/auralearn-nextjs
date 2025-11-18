@@ -26,7 +26,7 @@ import {
   Mic,
   Type,
 } from 'lucide-react';
-import { submitResponse, completeAssessment } from '@/services/cognitive-assessment-service';
+import { submitResponse, completeAssessment } from '@/services/learning-profile-service';
 import type { CognitiveQuestion } from '@/services/gemini-cognitive-generator';
 import { 
   getLiveKitToken, 
@@ -100,8 +100,8 @@ export default function StudentCognitiveAssessment() {
 
       // Check if cognitive assessment already exists for this student
       const { data: existingAssessments, error: assessmentError } = await supabase
-        .from('cognitive_assessments')
-        .select('*, cognitive_assessment_questions(questions)')
+        .from('learning_profiles')
+        .select('*, learning_profile_questions(questions)')
         .eq('student_id', studentData.id)
         .eq('assessment_type', 'student')
         .order('created_at', { ascending: false })
@@ -134,7 +134,7 @@ export default function StudentCognitiveAssessment() {
 
           // Save questions to database
           const { data: questionsRecord, error: questionsError } = await supabase
-            .from('cognitive_assessment_questions')
+            .from('learning_profile_questions')
             .insert({
               student_id: studentData.id,
               questions: assessment.questions,
@@ -157,7 +157,7 @@ export default function StudentCognitiveAssessment() {
 
           // Create cognitive assessment record
           const { data: newAssessment, error: newAssessmentError } = await supabase
-            .from('cognitive_assessments')
+            .from('learning_profiles')
             .insert({
               student_id: studentData.id,
               assessment_type: 'student',
@@ -177,7 +177,7 @@ export default function StudentCognitiveAssessment() {
 
           existingAssessment = {
             ...newAssessment,
-            cognitive_assessment_questions: questionsRecord
+            learning_profile_questions: questionsRecord
           };
         } catch (genError) {
           console.error('Error generating assessment:', genError);
@@ -188,12 +188,12 @@ export default function StudentCognitiveAssessment() {
         console.log('Using existing assessment:', existingAssessment);
         // Mark existing assessment as in progress
         await supabase
-          .from('cognitive_assessments')
+          .from('learning_profiles')
           .update({ status: 'in_progress' })
           .eq('id', existingAssessment.id);
       }
 
-      if (!existingAssessment.cognitive_assessment_questions) {
+      if (!existingAssessment.learning_profile_questions) {
         console.error('No questions found in assessment');
         toast.error('Assessment questions not found');
         setSession(null);
@@ -201,13 +201,13 @@ export default function StudentCognitiveAssessment() {
         return;
       }
 
-      console.log('Setting session with questions:', existingAssessment.cognitive_assessment_questions.questions);
+      console.log('Setting session with questions:', existingAssessment.learning_profile_questions.questions);
 
       setSession({
         id: existingAssessment.id,
         student_id: studentData.id,
         student_name: studentData.name,
-        questions: existingAssessment.cognitive_assessment_questions.questions,
+        questions: existingAssessment.learning_profile_questions.questions,
         language: existingAssessment.language as 'en' | 'fr',
       });
 

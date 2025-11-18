@@ -20,7 +20,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { getLearningProfileSummary } from "@/services/parent-dashboard-service";
-import { AssessmentResult, getAssessmentResult } from "@/services/cognitive-assessment-service";
+import { AssessmentResult, getAssessmentResult } from "@/services/learning-profile-service";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";

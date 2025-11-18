@@ -1,7 +1,7 @@
 /**
- * API Route: Complete Cognitive Assessment
+ * API Route: Complete Learning Snapshot
  * 
- * Server-side route for completing cognitive assessments and storing results.
+ * Server-side route for completing learning snapshots and storing learning insights.
  * Uses Supabase service role key to bypass RLS policies.
  */
 
@@ -84,8 +84,8 @@ export async function POST(request: NextRequest) {
 
     // Get assessment details
     const { data: assessment, error: assessmentError } = await supabase
-      .from('cognitive_assessments')
-      .select('*, cognitive_assessment_questions(*)')
+      .from('learning_profiles')
+      .select('*, learning_profile_questions(*)')
       .eq('id', assessmentId)
       .single();
 
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
 
     // Get all responses
     const { data: responses, error: responsesError } = await supabase
-      .from('cognitive_assessment_responses')
+      .from('learning_profile_responses')
       .select('*')
       .eq('assessment_id', assessmentId);
 
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get questions to check for reverse scoring
-    const questions = (assessment.cognitive_assessment_questions as any)?.questions as CognitiveQuestion[] || [];
+    const questions = (assessment.learning_profile_questions as any)?.questions as CognitiveQuestion[] || [];
     
     // Prepare responses with reverse scoring info
     const responsesWithReverse = responses.map((r) => {
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
 
     // Store results using service role key (bypasses RLS)
     const { data: result, error: resultError } = await supabase
-      .from('cognitive_assessment_results')
+      .from('learning_profile_results')
       .insert({
         assessment_id: assessmentId,
         student_id: assessment.student_id,
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
 
     // Mark assessment as completed
     const { error: updateError } = await supabase
-      .from('cognitive_assessments')
+      .from('learning_profiles')
       .update({
         status: 'completed',
         completed_at: new Date().toISOString(),
@@ -182,8 +182,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ result }, { status: 200 });
   } catch (error) {
-    console.error('Error completing cognitive assessment:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Failed to complete cognitive assessment';
+    console.error('Error completing learning snapshot:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to complete learning snapshot';
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 }

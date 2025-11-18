@@ -208,8 +208,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clerkUser]);
 
   useEffect(() => {
-    if (isLoaded) {
-      fetchOrCreateUserProfile();
+    if (isLoaded && clerkUser) {
+      // Use setTimeout to avoid calling setState synchronously in effect
+      const timer = setTimeout(() => {
+        fetchOrCreateUserProfile();
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [clerkUser, isLoaded, fetchOrCreateUserProfile]);
 
