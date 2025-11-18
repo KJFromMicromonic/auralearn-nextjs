@@ -16,6 +16,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 import { getEnvVar } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 // Initialize Gemini API with 2.5 Flash - works in both browser and Node.js
 const getApiKey = () => {
@@ -77,12 +78,12 @@ export interface DomainInterpretation {
  * Generate a complete 15-question learning profile
  * 
  * @param language - Target language for generation context
- * @param gradeLevel - Student grade level (CM1 or CM2)
+ * @param gradeLevel - Student grade level (CP, CE1, CE2, CM1, CM2, 6e, 5e, 4e, 3e)
  * @returns Complete learning profile with 15 questions
  */
 export async function generateCognitiveAssessment(
   language: 'en' | 'fr' = 'fr',
-  gradeLevel: 'CM1' | 'CM2' = 'CM1'
+  gradeLevel: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e' = 'CM1'
 ): Promise<CognitiveAssessment> {
   try {
     // Use Gemini 2.5 Flash for generation
@@ -90,7 +91,7 @@ export async function generateCognitiveAssessment(
 
     const prompt = buildCognitivePrompt(language, gradeLevel);
 
-    console.log('Generating learning profile questions with Gemini 2.5 Flash...');
+    logger.log('Generating learning profile questions with Gemini 2.5 Flash...');
     
     const result = await model.generateContent(prompt);
     const response = result.response;
@@ -108,14 +109,50 @@ export async function generateCognitiveAssessment(
         generated_at: new Date().toISOString(),
         model: 'gemini-2.0-flash-exp',
         language,
-        student_age_range: '8-12 years',
+        student_age_range: getAgeRangeForGradeLevel(gradeLevel),
         grade_level: gradeLevel,
       },
     };
   } catch (error) {
-    console.error('Error generating learning profile:', error);
+    logger.error('Error generating learning profile:', error);
     throw new Error('Failed to generate learning profile. Please try again.');
   }
+}
+
+/**
+ * Get age range for a grade level
+ */
+function getAgeRangeForGradeLevel(gradeLevel: string): string {
+  const ageRanges: Record<string, string> = {
+    'CP': '6-7 years',
+    'CE1': '7-8 years',
+    'CE2': '8-9 years',
+    'CM1': '9-10 years',
+    'CM2': '10-11 years',
+    '6e': '11-12 years',
+    '5e': '12-13 years',
+    '4e': '13-14 years',
+    '3e': '14-15 years',
+  };
+  return ageRanges[gradeLevel] || '6-15 years';
+}
+
+/**
+ * Get grade level display name
+ */
+function getGradeLevelDisplayName(gradeLevel: string): string {
+  const displayNames: Record<string, string> = {
+    'CP': 'CP (Cours Préparatoire)',
+    'CE1': 'CE1 (Cours Élémentaire 1)',
+    'CE2': 'CE2 (Cours Élémentaire 2)',
+    'CM1': 'CM1 (Cours Moyen 1)',
+    'CM2': 'CM2 (Cours Moyen 2)',
+    '6e': '6ème (Sixième - Collège)',
+    '5e': '5ème (Cinquième - Collège)',
+    '4e': '4ème (Quatrième - Collège)',
+    '3e': '3ème (Troisième - Collège)',
+  };
+  return displayNames[gradeLevel] || gradeLevel;
 }
 
 /**
@@ -126,7 +163,10 @@ function buildCognitivePrompt(language: 'en' | 'fr', gradeLevel: string): string
     ? 'Generate all questions in both French and English, with French as the primary language.'
     : 'Generate all questions in both English and French, with English as the primary language.';
 
-  return `You are an expert educational psychologist specializing in understanding children's learning needs and support preferences for ages 8-12 years (French CM1/CM2 level).
+  const ageRange = getAgeRangeForGradeLevel(gradeLevel);
+  const gradeDisplayName = getGradeLevelDisplayName(gradeLevel);
+
+  return `You are an expert educational psychologist specializing in understanding children's learning needs and support preferences for ${ageRange} (French ${gradeDisplayName} level).
 
 ${languageInstruction}
 
@@ -293,12 +333,12 @@ function normalizeDomain(domain: string): CognitiveDomain {
   
   const normalized = domainMap[domainLower];
   if (!normalized) {
-    console.warn(`Unknown domain value: "${domain}", defaulting to "processing_speed"`);
+    logger.warn('Unknown domain value, defaulting to "processing_speed"');
     return 'processing_speed';
   }
   
   if (normalized !== domainLower) {
-    console.log(`Domain normalized: "${domain}" -> "${normalized}"`);
+    logger.log('Domain normalized');
   }
   
   return normalized;
@@ -387,9 +427,7 @@ function parseCognitiveResponse(text: string): CognitiveQuestion[] {
 
     return normalizedQuestions;
   } catch (error) {
-    console.error('Error parsing Gemini response:', error);
-    console.error('Raw response (first 500 chars):', text.substring(0, 500));
-    console.error('Raw response (last 500 chars):', text.substring(Math.max(0, text.length - 500)));
+    logger.error('Error parsing Gemini response:', error);
     
     // Provide more helpful error message
     if (error instanceof SyntaxError) {
@@ -434,13 +472,13 @@ function validateQuestionStructure(questions: CognitiveQuestion[]): void {
   Object.entries(expectedDistribution).forEach(([domain, expectedCount]) => {
     const actualCount = domainCounts[domain] || 0;
     if (actualCount !== expectedCount) {
-      console.warn(
+      logger.warn(
         `Domain ${domain}: expected ${expectedCount} questions, got ${actualCount}`
       );
     }
   });
 
-  console.log('✓ Question structure validated successfully');
+  logger.log('✓ Question structure validated successfully');
 }
 
 /**

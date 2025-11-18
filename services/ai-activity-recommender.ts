@@ -9,6 +9,7 @@ import { generateStructuredResponse } from './mistralai-client';
 import { ActivityWithSource, ActivityLog, getActivityHistory, getActivityStats } from './parent-activity-service';
 import { AssessmentResult, getAssessmentResult } from './learning-profile-service';
 import { StudentWithClass } from './student-service';
+import { logger } from '@/lib/logger';
 
 export interface ActivityRecommendationParams {
   studentId: string;
@@ -129,7 +130,7 @@ export async function getAIActivityRecommendations(
       alternativeSuggestions: aiResponse.alternativeSuggestions,
     };
   } catch (error) {
-    console.error('Error generating AI activity recommendations:', error);
+    logger.error('Error generating AI activity recommendations:', error);
     
     // Fallback: return top activities by type
     const fallbackActivities = availableActivities.slice(0, limit);
@@ -336,7 +337,7 @@ export async function getQuickActivityRecommendation(
     );
     return recommendations.recommendations;
   } catch (error) {
-    console.error('Error in quick recommendation:', error);
+    logger.error('Error in quick recommendation:', error);
     // Fallback: return first activities
     return availableActivities.slice(0, limit).map(activity => ({
       activity,

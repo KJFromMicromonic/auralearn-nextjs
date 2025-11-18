@@ -14,11 +14,10 @@ export default function RoleBasedSidebar() {
   const { t } = useTranslation();
 
   const teacherNavigation = [
-    { name: t('navigation.home'), path: "/", icon: Home },
+    { name: t('navigation.dashboard'), path: "/dashboard", icon: LayoutDashboard },
     { name: t('navigation.createClass'), path: "/create-class", icon: Users },
     { name: t('navigation.assessment'), path: "/assessment", icon: FileCheck },
     { name: "AuraVoice", path: "/cognitive-assessment", icon: Brain },
-    { name: t('navigation.dashboard'), path: "/dashboard", icon: LayoutDashboard },
     { name: t('navigation.learningCategories'), path: "/student-categories", icon: Brain },
     { name: t('navigation.teachingGuide'), path: "/teaching-guide", icon: BookOpen },
     { name: t('navigation.worksheets'), path: "/worksheets", icon: FileText },

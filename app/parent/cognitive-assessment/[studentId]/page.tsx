@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { submitResponse, completeAssessment } from '@/services/learning-profile-service';
 import type { CognitiveQuestion } from '@/services/gemini-cognitive-generator';
+import { GradeLevelType } from '@/contexts/AuthContext';
 import { 
   getLiveKitToken, 
   connectToLiveKitRoom, 
@@ -174,7 +175,7 @@ export default function ParentCognitiveAssessment() {
               const { generateCognitiveAssessment } = await import('@/services/assessment-api-client');
               const assessment = await generateCognitiveAssessment(
           'fr',
-          (studentData.classes?.grade_level as 'CM1' | 'CM2') || 'CM1'
+          (studentData.classes?.grade_level as GradeLevelType) || 'CM1'
         );
         questions = assessment.questions;
 

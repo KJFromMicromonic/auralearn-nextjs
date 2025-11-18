@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 export interface TokenValidationResult {
   valid: boolean;
@@ -44,7 +45,7 @@ export async function validateAssessmentToken(
       .single();
 
     if (error) {
-      console.error('Error validating token:', error);
+      logger.error('Error validating token:', error);
       return {
         valid: false,
         errorMessage: 'Invalid token',
@@ -78,7 +79,7 @@ export async function validateAssessmentToken(
       primaryCategory: student.primary_category,
     };
   } catch (error) {
-    console.error('Error in validateAssessmentToken:', error);
+    logger.error('Error in validateAssessmentToken:', error);
     return {
       valid: false,
       errorMessage: 'An error occurred while validating the token',
@@ -98,10 +99,10 @@ export async function markTokenAsUsed(token: string): Promise<void> {
       .eq('assessment_token', token);
 
     if (error) {
-      console.error('Error marking token as used:', error);
+      logger.error('Error marking token as used:', error);
     }
   } catch (error) {
-    console.error('Error in markTokenAsUsed:', error);
+    logger.error('Error in markTokenAsUsed:', error);
   }
 }
 
@@ -127,10 +128,10 @@ export async function logAssessmentAccess(
       });
 
     if (error) {
-      console.error('Error logging assessment access:', error);
+      logger.error('Error logging assessment access:', error);
     }
   } catch (error) {
-    console.error('Error in logAssessmentAccess:', error);
+    logger.error('Error in logAssessmentAccess:', error);
   }
 }
 
@@ -158,13 +159,13 @@ export async function regenerateAssessmentToken(
       .single();
 
     if (error) {
-      console.error('Error regenerating token:', error);
+      logger.error('Error regenerating token:', error);
       return null;
     }
 
     return data?.assessment_token || null;
   } catch (error) {
-    console.error('Error in regenerateAssessmentToken:', error);
+    logger.error('Error in regenerateAssessmentToken:', error);
     return null;
   }
 }
@@ -181,13 +182,13 @@ export async function getStudentByToken(token: string): Promise<Student | null> 
       .single();
 
     if (error) {
-      console.error('Error fetching student by token:', error);
+      logger.error('Error fetching student by token:', error);
       return null;
     }
 
     return data;
   } catch (error) {
-    console.error('Error in getStudentByToken:', error);
+    logger.error('Error in getStudentByToken:', error);
     return null;
   }
 }
@@ -206,13 +207,13 @@ export async function getClassStudentsWithTokens(
       .order('name');
 
     if (error) {
-      console.error('Error fetching class students:', error);
+      logger.error('Error fetching class students:', error);
       return [];
     }
 
     return data || [];
   } catch (error) {
-    console.error('Error in getClassStudentsWithTokens:', error);
+    logger.error('Error in getClassStudentsWithTokens:', error);
     return [];
   }
 }
@@ -243,13 +244,13 @@ export async function updateStudentParentEmails(
       .eq('id', studentId);
 
     if (error) {
-      console.error('Error updating parent emails:', error);
+      logger.error('Error updating parent emails:', error);
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('Error in updateStudentParentEmails:', error);
+    logger.error('Error in updateStudentParentEmails:', error);
     return false;
   }
 }
@@ -271,7 +272,7 @@ export async function getAssessmentStatuses(
       .eq('class_id', classId);
 
     if (studentsError) {
-      console.error('Error fetching students:', studentsError);
+      logger.error('Error fetching students:', studentsError);
       return new Map();
     }
 
@@ -288,7 +289,7 @@ export async function getAssessmentStatuses(
       .in('student_id', studentIds);
 
     if (assessmentsError) {
-      console.error('Error fetching assessments:', assessmentsError);
+      logger.error('Error fetching assessments:', assessmentsError);
       return new Map();
     }
 
@@ -329,7 +330,7 @@ export async function getAssessmentStatuses(
 
     return statusMap;
   } catch (error) {
-    console.error('Error in getAssessmentStatuses:', error);
+    logger.error('Error in getAssessmentStatuses:', error);
     return new Map();
   }
 }

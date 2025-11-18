@@ -7,6 +7,7 @@
 
 import type { AssessmentQuestion, CurriculumContext } from '@/services/gemini-assessment-generator';
 import type { CognitiveAssessment, CognitiveQuestion } from '@/services/gemini-cognitive-generator';
+import { logger } from '@/lib/logger';
 
 /**
  * Generate academic assessment questions via API
@@ -37,7 +38,7 @@ export async function generateAssessmentQuestions(
     const data = await response.json();
     return data.questions;
   } catch (error) {
-    console.error('Error calling assessment generation API:', error);
+    logger.error('Error calling assessment generation API:', error);
     throw error;
   }
 }
@@ -47,7 +48,7 @@ export async function generateAssessmentQuestions(
  */
 export async function generateCognitiveAssessment(
   language: 'en' | 'fr' = 'fr',
-  gradeLevel: 'CM1' | 'CM2' = 'CM1'
+  gradeLevel: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e' = 'CM1'
 ): Promise<CognitiveAssessment> {
   try {
     const response = await fetch('/api/cognitive-assessments/generate', {
@@ -69,7 +70,7 @@ export async function generateCognitiveAssessment(
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error calling cognitive assessment generation API:', error);
+    logger.error('Error calling cognitive assessment generation API:', error);
     throw error;
   }
 }

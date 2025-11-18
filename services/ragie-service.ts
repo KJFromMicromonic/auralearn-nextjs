@@ -9,6 +9,8 @@
  * Note: API key is stored server-side and accessed via /api/ragie/retrieve route
  */
 
+import { logger } from '@/lib/logger';
+
 /**
  * Ragie retrieval request payload
  */
@@ -68,10 +70,7 @@ export async function retrieveTeachingGuides(
   } = {}
 ): Promise<RagieChunk[]> {
   try {
-    console.log('🔍 Retrieving teaching guides from Ragie:', {
-      query: query.substring(0, 100) + '...',
-      top_k: options.top_k || 5,
-    });
+    logger.log('🔍 Retrieving teaching guides from Ragie');
 
     // Call Next.js API route (which securely calls Ragie)
     const response = await fetch('/api/ragie/retrieve', {
@@ -88,22 +87,22 @@ export async function retrieveTeachingGuides(
     });
 
     if (!response.ok) {
-      console.warn('⚠️ Failed to retrieve from Ragie API route');
+      logger.warn('⚠️ Failed to retrieve from Ragie API route');
       return [];
     }
 
     const data = (await response.json()) as RagieRetrieveResponse;
 
     if (!data.chunks || data.chunks.length === 0) {
-      console.log('ℹ️ No relevant teaching guides found in Ragie');
+      logger.log('ℹ️ No relevant teaching guides found in Ragie');
       return [];
     }
 
-    console.log(`✅ Retrieved ${data.chunks.length} relevant chunks from Ragie`);
+    logger.log(`✅ Retrieved ${data.chunks.length} relevant chunks from Ragie`);
 
     return data.chunks;
   } catch (error) {
-    console.error('Error retrieving teaching guides from Ragie:', error);
+    logger.error('Error retrieving teaching guides from Ragie:', error);
     // Don't throw - allow generation to continue without RAG content
     return [];
   }

@@ -525,18 +525,21 @@ const SidebarMenuBadge = React.forwardRef<HTMLDivElement, React.ComponentProps<"
 );
 SidebarMenuBadge.displayName = "SidebarMenuBadge";
 
+const SKELETON_WIDTHS = ['60%', '70%', '75%', '80%', '65%', '85%'];
+
 const SidebarMenuSkeleton = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
     showIcon?: boolean;
   }
 >(({ className, showIcon = false, ...props }, ref) => {
-  // Random width between 50 to 90% - use stable value based on component instance
+  // Use useMemo to calculate a stable width per component instance
+  // This ensures consistent width across renders and avoids hydration mismatches
+  // Using className and showIcon as stable inputs for deterministic selection
   const width = React.useMemo(() => {
-    // Use a stable seed based on component mount to avoid re-renders
-    const seed = Math.floor(Date.now() % 1000);
-    return `${Math.floor((seed % 40) + 50)}%`;
-  }, []);
+    const hash = Math.abs((className?.length || 0) + (showIcon ? 1 : 0)) % SKELETON_WIDTHS.length;
+    return SKELETON_WIDTHS[hash] || '70%';
+  }, [className, showIcon]);
 
   return (
     <div

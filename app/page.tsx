@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,9 +11,26 @@ import { useTranslation } from "react-i18next";
 
 export default function Home() {
   const router = useRouter();
-  const { isSignedIn } = useClerkAuth();
-  const { user, isTeacher, isParent } = useAuth();
+  const { isSignedIn, isLoaded: clerkLoaded } = useClerkAuth();
+  const { user, isTeacher, isParent, isLoading: authLoading } = useAuth();
   const { t } = useTranslation();
+
+  // Redirect authenticated users to their dashboard
+  useEffect(() => {
+    // Wait for both Clerk and auth context to load
+    if (!clerkLoaded || authLoading) {
+      return;
+    }
+
+    // If user is signed in and has a role, redirect to appropriate dashboard
+    if (isSignedIn && user?.role) {
+      if (isTeacher) {
+        router.replace("/dashboard");
+      } else if (isParent) {
+        router.replace("/parent-dashboard");
+      }
+    }
+  }, [isSignedIn, clerkLoaded, authLoading, user?.role, isTeacher, isParent, router]);
 
   const handleGetStarted = () => {
     if (isSignedIn && user?.role) {

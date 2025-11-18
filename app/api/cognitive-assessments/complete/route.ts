@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { serverLogger } from '@/lib/logger';
 import { createClient } from '@supabase/supabase-js';
 import { 
   calculateDomainScores, 
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (assessmentError) {
-      console.error('Error fetching assessment:', assessmentError);
+      serverLogger.error('Error fetching assessment:', assessmentError);
       return NextResponse.json(
         { error: 'Failed to fetch assessment', details: assessmentError.message },
         { status: 500 }
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       .eq('assessment_id', assessmentId);
 
     if (responsesError) {
-      console.error('Error fetching responses:', responsesError);
+      serverLogger.error('Error fetching responses:', responsesError);
       return NextResponse.json(
         { error: 'Failed to fetch responses', details: responsesError.message },
         { status: 500 }
@@ -158,7 +159,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (resultError) {
-      console.error('Error inserting results:', resultError);
+      serverLogger.error('Error inserting results:', resultError);
       return NextResponse.json(
         { error: 'Failed to store results', details: resultError.message },
         { status: 500 }
@@ -175,14 +176,14 @@ export async function POST(request: NextRequest) {
       .eq('id', assessmentId);
 
     if (updateError) {
-      console.error('Error updating assessment status:', updateError);
+      serverLogger.error('Error updating assessment status:', updateError);
       // Don't fail the request if status update fails - results are already saved
-      console.warn('Assessment results saved but status update failed');
+      serverLogger.warn('Assessment results saved but status update failed');
     }
 
     return NextResponse.json({ result }, { status: 200 });
   } catch (error) {
-    console.error('Error completing learning snapshot:', error);
+    serverLogger.error('Error completing learning snapshot:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to complete learning snapshot';
     return NextResponse.json(
       { error: errorMessage },

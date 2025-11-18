@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { serverLogger } from '@/lib/logger';
 
 // Get Supabase admin client (service role - bypasses RLS)
 function getSupabaseAdmin() {
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('Error inserting challenge progress:', insertError);
+      serverLogger.error('Error inserting challenge progress:', insertError);
       return NextResponse.json(
         { error: 'Failed to assign challenge', details: insertError.message },
         { status: 500 }
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data: progress });
   } catch (error) {
-    console.error('Error in assign challenge API:', error);
+    serverLogger.error('Error in assign challenge API:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

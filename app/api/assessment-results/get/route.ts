@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { serverLogger } from '@/lib/logger';
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
@@ -89,7 +90,7 @@ export async function GET(request: NextRequest) {
         // No results found
         return NextResponse.json({ data: null });
       }
-      console.error('Error fetching assessment result:', error);
+      serverLogger.error('Error fetching assessment result:', error);
       return NextResponse.json(
         { error: 'Failed to fetch assessment result', details: error.message },
         { status: 500 }
@@ -98,7 +99,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('Error in get assessment result API:', error);
+    serverLogger.error('Error in get assessment result API:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

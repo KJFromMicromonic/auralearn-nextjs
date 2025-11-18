@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { useUser, useClerk } from '@clerk/clerk-react';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 export type UserRole = 'teacher' | 'parent';
 
@@ -18,7 +19,7 @@ export type SubjectType =
   | 'sciences_technologie'
   | 'mathematiques';
 
-export type GradeLevelType = 'CM1' | 'CM2';
+export type GradeLevelType = 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e';
 
 export interface UserProfile {
   id: string;
@@ -67,24 +68,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (!clerkId) {
-        console.error('Missing required user data: clerkId', { clerkId, email });
+        logger.error('Missing required user data: clerkId');
         setIsLoading(false);
         return;
       }
 
       // If email is still not available, log a warning but continue (email might be optional)
       if (!email) {
-        console.warn('Email not available yet, continuing without it:', { clerkId });
+        logger.warn('Email not available yet, continuing without it');
       }
-
-      // Check Supabase configuration before making request
-      // Log what we're about to use
-      console.log('🔍 About to query Supabase:', {
-        clerkId,
-        email,
-        // Try to get the actual URL from the client
-        supabaseClientType: typeof supabase,
-      });
 
       // Check if user exists in Supabase
       const { data: existingUser, error: fetchError } = await supabase
@@ -112,17 +104,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (errorCode === 'PGRST116') {
           // This is expected - user doesn't exist yet, continue to create
         } else {
-          // Log the error with direct property access
-          console.error('Error fetching user from Supabase:');
-          console.error('  Code:', errorCode || 'undefined');
-          console.error('  Message:', errorMessage || 'undefined');
-          console.error('  Details:', errorDetails || 'undefined');
-          console.error('  Hint:', errorHint || 'undefined');
-          console.error('  Clerk ID:', clerkId);
-          console.error('  Email:', email);
-          
-          // Use console.dir for better object inspection
-          console.dir(fetchError, { depth: null });
+          // Log the error (sanitized)
+          logger.error('Error fetching user from Supabase:', {
+            code: errorCode,
+            message: errorMessage,
+            details: errorDetails,
+            hint: errorHint,
+          });
           
           setIsLoading(false);
           return;
@@ -169,20 +157,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
 
           if (retryError) {
-            console.error('Error fetching user after duplicate key error:', {
+            logger.error('Error fetching user after duplicate key error:', {
               message: retryError.message,
-              details: retryError.details,
-              hint: retryError.hint,
               code: retryError.code,
             });
           }
         } else {
-          console.error('Error creating user in Supabase:', {
+          logger.error('Error creating user in Supabase:', {
             message: createError.message,
-            details: createError.details,
-            hint: createError.hint,
             code: createError.code,
-            status: (createError as any)?.status,
           });
         }
         setIsLoading(false);
@@ -190,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (!newUser) {
-        console.error('User creation succeeded but no data returned');
+        logger.error('User creation succeeded but no data returned');
         setIsLoading(false);
         return;
       }
@@ -198,11 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserProfile(newUser as UserProfile);
       setIsLoading(false);
     } catch (error) {
-      console.error('Error in fetchOrCreateUserProfile:', {
-        error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-      });
+      logger.error('Error in fetchOrCreateUserProfile:', error);
       setIsLoading(false);
     }
   }, [clerkUser]);

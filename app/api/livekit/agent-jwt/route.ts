@@ -11,10 +11,11 @@
 import { AccessToken } from 'livekit-server-sdk';
 import { NextResponse } from 'next/server';
 import { generateCognitiveAssessment } from '@/services/gemini-cognitive-generator';
+import { serverLogger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   try {
-    console.log('🔧 Agent JWT token generation request received');
+    serverLogger.log('🔧 Agent JWT token generation request received');
 
     const {
       student_id,
@@ -26,19 +27,9 @@ export async function POST(request: Request) {
       parent_id,
     } = await request.json();
 
-    console.log('📋 Request data:', {
-      student_id,
-      user_id,
-      room_name,
-      language,
-      grade_level,
-      assessment_id,
-      parent_id,
-    });
-
     // Validate required parameters
     if (!student_id || !user_id || !room_name) {
-      console.error('❌ Missing required fields');
+      serverLogger.error('❌ Missing required fields');
       return NextResponse.json(
         { error: 'student_id, user_id, and room_name are required' },
         { status: 400 }
@@ -59,16 +50,10 @@ export async function POST(request: Request) {
     const apiSecret = process.env.LIVEKIT_API_SECRET;
     const wsUrl = process.env.LIVEKIT_URL;
 
-    console.log('🔑 Environment check:', {
-      hasApiKey: !!apiKey,
-      hasApiSecret: !!apiSecret,
-      hasWsUrl: !!wsUrl,
-      apiKey: apiKey ? `${apiKey.substring(0, 6)}...` : 'undefined',
-      wsUrl,
-    });
+    serverLogger.log('🔑 Environment check');
 
     if (!apiKey || !apiSecret) {
-      console.error('❌ LiveKit credentials missing');
+      serverLogger.error('❌ LiveKit credentials missing');
       return NextResponse.json(
         {
           error: 'LiveKit credentials not configured',
@@ -79,15 +64,15 @@ export async function POST(request: Request) {
     }
 
     // Generate cognitive assessment questions dynamically
-    console.log(`📝 Generating cognitive assessment questions for student ${student_id}...`);
+    serverLogger.log('📝 Generating cognitive assessment questions...');
     const assessment = await generateCognitiveAssessment(
       language || 'fr',
       grade_level || 'CM1'
     );
-    console.log(`✅ Generated ${assessment.questions.length} questions`);
+    serverLogger.log(`✅ Generated ${assessment.questions.length} questions`);
 
     // Create access token
-    console.log('🎫 Creating access token...');
+    serverLogger.log('🎫 Creating access token...');
     const token = new AccessToken(apiKey, apiSecret, {
       identity: user_id,
       name: user_id,
@@ -119,13 +104,7 @@ export async function POST(request: Request) {
     // after the participant successfully connects to the room
 
     const jwt = await token.toJwt();
-    console.log('✅ Token generated successfully');
-    console.log('🔍 Token details:', {
-      identity: user_id,
-      room: room_name,
-      tokenLength: jwt.length,
-      tokenStart: jwt.substring(0, 20) + '...',
-    });
+    serverLogger.log('✅ Token generated successfully');
 
     return NextResponse.json({
       token: jwt,
@@ -136,12 +115,7 @@ export async function POST(request: Request) {
       roomMetadata: metadata, // Pass metadata separately for room creation
     });
   } catch (error) {
-    console.error('❌ Error generating agent JWT:', error);
-    console.error(
-      'Error details:',
-      error instanceof Error ? error.message : 'Unknown error',
-      error instanceof Error ? error.stack : undefined
-    );
+    serverLogger.error('❌ Error generating agent JWT:', error);
     return NextResponse.json(
       {
         error: 'Failed to generate agent JWT',

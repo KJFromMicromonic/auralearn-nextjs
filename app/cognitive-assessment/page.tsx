@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, GradeLevelType } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Layout from '@/components/Layout';
 import { supabase } from '@/lib/supabase';
@@ -160,11 +160,12 @@ export default function LearningSnapshot() {
       toast.info('Generating learning profile questions...');
 
       // Ensure grade level is valid, default to CM1 if null or invalid
-      const gradeLevel = (classItem.grade_level === 'CM1' || classItem.grade_level === 'CM2') 
-        ? classItem.grade_level 
+      const validGradeLevels: GradeLevelType[] = ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'];
+      const gradeLevel = validGradeLevels.includes(classItem.grade_level as GradeLevelType)
+        ? (classItem.grade_level as GradeLevelType)
         : 'CM1';
-
-      const assessment = await generateCognitiveAssessment('fr', gradeLevel as 'CM1' | 'CM2');
+      
+      const assessment = await generateCognitiveAssessment('fr', gradeLevel);
       setPreviewQuestions(assessment.questions);
       setShowPreviewDialog(true);
       

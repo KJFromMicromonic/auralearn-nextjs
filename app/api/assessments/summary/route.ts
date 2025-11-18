@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { serverLogger } from '@/lib/logger';
 import { generateAssessmentSummary as generateSummary, type SummaryOptions } from '@/services/assessment-ai-summary';
 import type { ReportData } from '@/services/assessment-report-service';
 
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ summary }, { status: 200 });
   } catch (error) {
-    console.error('Error generating assessment summary:', error);
+    serverLogger.error('Error generating assessment summary:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate assessment summary';
     return NextResponse.json(
       { error: errorMessage },

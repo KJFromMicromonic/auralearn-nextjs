@@ -5,12 +5,13 @@
  */
 
 import { getEnvVar } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 const BLACKBOX_API_URL = 'https://api.blackbox.ai/chat/completions';
 const BLACKBOX_API_KEY = getEnvVar('NEXT_PUBLIC_BLACKBOX_API_KEY', '');
 
 if (!BLACKBOX_API_KEY) {
-  console.warn('⚠️ BlackBox API key not configured. AI features will use fallback responses.');
+  logger.warn('⚠️ BlackBox API key not configured. AI features will use fallback responses.');
 }
 
 interface Message {
@@ -98,7 +99,7 @@ export async function runAgenticLoop(
 
   while (iterationCount < maxIterations) {
     iterationCount++;
-    console.log(`🔄 Agentic loop iteration ${iterationCount}`);
+    logger.log(`🔄 Agentic loop iteration ${iterationCount}`);
 
     // Call BlackBox AI
     const response = await callBlackBoxAI(messages, tools);
@@ -108,14 +109,14 @@ export async function runAgenticLoop(
 
     // Check if there are tool calls
     if (response.tool_calls && response.tool_calls.length > 0) {
-      console.log(`🔧 Processing ${response.tool_calls.length} tool calls`);
+      logger.log(`🔧 Processing ${response.tool_calls.length} tool calls`);
 
       // Execute each tool call
       for (const toolCall of response.tool_calls) {
         const toolName = toolCall.function.name;
         const toolArgs = JSON.parse(toolCall.function.arguments);
 
-        console.log(`📞 Calling tool: ${toolName}`, toolArgs);
+        logger.log(`📞 Calling tool: ${toolName}`);
 
         // Execute the tool
         const toolFunction = toolMapping[toolName];
@@ -135,12 +136,12 @@ export async function runAgenticLoop(
       }
     } else {
       // No more tool calls, return final response
-      console.log('✅ Agentic loop completed');
+      logger.log('✅ Agentic loop completed');
       return response.content || '';
     }
   }
 
-  console.warn('⚠️ Maximum iterations reached');
+  logger.warn('⚠️ Maximum iterations reached');
   return messages[messages.length - 1].content || 'Maximum iterations reached without final answer';
 }
 
@@ -172,7 +173,7 @@ export async function generateStructuredResponse<T>(
     // If no JSON block found, try parsing the whole content
     return JSON.parse(response.content) as T;
   } catch (error) {
-    console.error('Failed to parse JSON response:', response.content);
+    logger.error('Failed to parse JSON response');
     throw new Error('Failed to parse structured response from BlackBox AI');
   }
 }

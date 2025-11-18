@@ -19,6 +19,7 @@ import {
   markTokenAsUsed, 
   logAssessmentAccess 
 } from "@/services/assessment-token-service";
+import { logger } from "@/lib/logger";
 
 interface Question {
   id: string;
@@ -111,7 +112,7 @@ export default function StudentAssessmentComponent({ classId, studentId, token }
       await loadQuestionsForStudent(studentData);
 
     } catch (error: unknown) {
-      console.error("Error loading assessment by token:", error);
+      logger.error("Error loading assessment by token:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to load assessment";
       setTokenError(errorMessage);
       setIsLoading(false);
@@ -144,7 +145,7 @@ export default function StudentAssessmentComponent({ classId, studentId, token }
       await loadQuestionsForStudent(studentData);
 
     } catch (error: unknown) {
-      console.error("Error loading assessment:", error);
+      logger.error("Error loading assessment:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to load assessment. Please try again.";
       toast({
         title: t('common.error'),
@@ -214,13 +215,7 @@ export default function StudentAssessmentComponent({ classId, studentId, token }
       // Generate questions using Gemini based on teacher's profile, user's language, and student's learning profile
       const language = i18n.language.startsWith('fr') ? 'fr' : 'en';
       
-      console.log('Generating personalized assessment questions:', { 
-        subject, 
-        gradeLevel, 
-        language,
-        studentCategory: studentData.primary_category,
-        accessMethod
-      });
+      logger.log('Generating personalized assessment questions');
 
       const generatedQuestions = await generateAssessmentQuestions(
         {
@@ -256,7 +251,7 @@ export default function StudentAssessmentComponent({ classId, studentId, token }
           : "Assessment questions generated successfully!",
       });
     } catch (error: unknown) {
-      console.error("Error loading questions:", error);
+      logger.error("Error loading questions:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -356,14 +351,7 @@ export default function StudentAssessmentComponent({ classId, studentId, token }
       const correctCount = finalAnswers.filter(a => a.is_correct).length;
       const { category, confidence } = calculateCategoryAndScore(finalAnswers);
 
-      console.log('Submitting assessment:', {
-        student_id: student?.id,
-        score: correctCount,
-        total_questions: questions.length,
-        category_determined: category,
-        confidence_score: confidence,
-        time_taken: totalTimeTaken,
-      });
+      logger.log('Submitting assessment');
 
       // Save to database using anonymous client (students are not authenticated)
       const { data: assessmentData, error: assessmentError } = await supabaseAnon
@@ -386,34 +374,16 @@ export default function StudentAssessmentComponent({ classId, studentId, token }
         .single();
 
       if (assessmentError) {
-        // Enhanced error logging
-        console.error("Database error details:", {
+        // Enhanced error logging (sanitized)
+        logger.error("Database error details:", {
           message: assessmentError.message,
-          details: assessmentError.details,
-          hint: assessmentError.hint,
           code: assessmentError.code,
-          // Log the full error object
-          fullError: assessmentError,
-          // Log the error as JSON to see all properties
-          errorString: JSON.stringify(assessmentError, null, 2),
-          // Log the request data that was sent
-          requestData: {
-            student_id: student?.id,
-            score: correctCount,
-            total_questions: questions.length,
-            category_determined: category,
-          },
         });
-        
-        // Also log the raw error
-        console.error("Raw assessmentError:", assessmentError);
-        console.error("Error type:", typeof assessmentError);
-        console.error("Error constructor:", assessmentError?.constructor?.name);
         
         throw assessmentError;
       }
 
-      console.log('Assessment saved successfully:', assessmentData);
+      logger.log('Assessment saved successfully');
 
       // Update student's primary category using anonymous client
       const { error: updateError } = await supabaseAnon
@@ -422,7 +392,7 @@ export default function StudentAssessmentComponent({ classId, studentId, token }
         .eq("id", student?.id);
 
       if (updateError) {
-        console.warn("Failed to update student category:", updateError);
+        logger.warn("Failed to update student category");
         // Don't throw - assessment is already saved
       }
 
@@ -441,38 +411,32 @@ export default function StudentAssessmentComponent({ classId, studentId, token }
         description: `You scored ${correctCount} out of ${questions.length}. Great job!`,
       });
     } catch (error: unknown) {
-      // Enhanced error logging
-      console.error("Error submitting assessment:", error);
-      console.error("Error type:", typeof error);
-      console.error("Error as JSON:", JSON.stringify(error, null, 2));
+      // Enhanced error logging (sanitized)
+      logger.error("Error submitting assessment:", error);
       
       // Try to extract error details from various error formats
       let errorMessage = "Failed to submit assessment. Please try again.";
       let errorCode: string | undefined;
-      let errorDetails: string | undefined;
       
       if (error instanceof Error) {
         errorMessage = error.message || errorMessage;
         // Check for Supabase-specific error properties
         const supabaseError = error as any;
         if (supabaseError.code) errorCode = supabaseError.code;
-        if (supabaseError.details) errorDetails = supabaseError.details;
-        if (supabaseError.hint) console.error("Error hint:", supabaseError.hint);
       } else if (error && typeof error === 'object') {
         // Try to extract from object
         const err = error as any;
         if (err.message) errorMessage = err.message;
         if (err.code) errorCode = err.code;
-        if (err.details) errorDetails = err.details;
       }
       
       // Provide specific error messages based on error type
       if (errorMessage?.includes('permission denied') || errorMessage?.includes('RLS') || errorCode === '42501') {
         errorMessage = "Database permission error. Please contact your teacher.";
-        console.error("RLS Policy Error - Student assessments table may need policy update");
+        logger.error("RLS Policy Error - Student assessments table may need policy update");
       } else if (errorMessage?.includes('network') || errorMessage?.includes('fetch') || errorMessage?.includes('Failed to fetch')) {
         errorMessage = "Network error. Please check your internet connection and try again.";
-        console.error("Network error - check Supabase URL configuration");
+        logger.error("Network error - check Supabase URL configuration");
       } else if (errorCode === '23505') {
         errorMessage = "This assessment has already been submitted.";
       } else if (errorCode === '23503') {
@@ -480,11 +444,6 @@ export default function StudentAssessmentComponent({ classId, studentId, token }
       } else if (errorCode === '23502') {
         errorMessage = "Missing required information. Please try again.";
       }
-      
-      // Log additional context
-      console.error("Final error message:", errorMessage);
-      console.error("Error code:", errorCode);
-      console.error("Error details:", errorDetails);
 
       toast({
         title: t('common.error'),

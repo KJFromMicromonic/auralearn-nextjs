@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateCognitiveAssessment } from '@/services/gemini-cognitive-generator';
+import { serverLogger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,20 +17,21 @@ export async function POST(request: NextRequest) {
     let gradeLevel = inputGradeLevel;
 
     // Normalize and validate grade level - default to CM1 if null, undefined, or invalid
-    if (!gradeLevel || (gradeLevel !== 'CM1' && gradeLevel !== 'CM2')) {
-      console.warn(`Invalid grade level received: ${gradeLevel}, defaulting to CM1`);
+    const validGradeLevels: string[] = ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'];
+    if (!gradeLevel || !validGradeLevels.includes(gradeLevel)) {
+      serverLogger.warn('Invalid grade level received, defaulting to CM1');
       gradeLevel = 'CM1';
     }
 
     // Generate cognitive assessment
     const assessment = await generateCognitiveAssessment(
       language as 'en' | 'fr',
-      gradeLevel as 'CM1' | 'CM2'
+      gradeLevel as 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e'
     );
 
     return NextResponse.json(assessment, { status: 200 });
   } catch (error) {
-    console.error('Error generating cognitive assessment:', error);
+    serverLogger.error('Error generating cognitive assessment:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate cognitive assessment';
     return NextResponse.json(
       { error: errorMessage },

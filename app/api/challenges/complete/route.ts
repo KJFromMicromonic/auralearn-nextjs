@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { serverLogger } from '@/lib/logger';
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (updateError) {
-      console.error('Error updating challenge progress:', updateError);
+      serverLogger.error('Error updating challenge progress:', updateError);
       return NextResponse.json(
         { error: 'Failed to complete challenge', details: updateError.message },
         { status: 500 }
@@ -124,7 +125,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data: updated });
   } catch (error) {
-    console.error('Error in complete challenge API:', error);
+    serverLogger.error('Error in complete challenge API:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

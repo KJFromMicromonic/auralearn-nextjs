@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getEnvVar } from '@/lib/utils';
+import { serverLogger } from '@/lib/logger';
 
 const RAGIE_API_URL = 'https://api.ragie.ai/retrievals';
 
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     const ragieApiKey = getEnvVar('RAGIE_API_KEY', '');
     
     if (!ragieApiKey) {
-      console.warn('⚠️ RAGIE_API_KEY not configured');
+      serverLogger.warn('⚠️ RAGIE_API_KEY not configured');
       return NextResponse.json(
         { chunks: [] },
         { status: 200 }
@@ -52,10 +53,7 @@ export async function POST(request: NextRequest) {
       ragieRequest.partition_id = partition_id;
     }
 
-    console.log('🔍 Retrieving from Ragie:', {
-      query: query.substring(0, 100) + '...',
-      top_k: ragieRequest.top_k,
-    });
+    serverLogger.log('🔍 Retrieving from Ragie');
 
     // Call Ragie API
     const response = await fetch(RAGIE_API_URL, {
@@ -69,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Ragie API error:', response.status, errorText);
+      serverLogger.error('Ragie API error:', { status: response.status });
       
       // Return empty chunks on error (non-blocking)
       return NextResponse.json(
@@ -80,11 +78,11 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    console.log(`✅ Retrieved ${data.chunks?.length || 0} chunks from Ragie`);
+    serverLogger.log(`✅ Retrieved ${data.chunks?.length || 0} chunks from Ragie`);
 
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    console.error('Error in Ragie retrieve route:', error);
+    serverLogger.error('Error in Ragie retrieve route:', error);
     
     // Return empty chunks on error (non-blocking)
     return NextResponse.json(

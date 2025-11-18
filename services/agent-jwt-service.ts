@@ -5,6 +5,8 @@
  * The JWT contains dynamically generated cognitive assessment questions.
  */
 
+import { logger } from '@/lib/logger';
+
 /**
  * Generate agent JWT token with embedded questions
  * 
@@ -12,7 +14,7 @@
  * @param userId User UUID (parent or student)
  * @param roomName LiveKit room name
  * @param language Language preference ('fr' or 'en')
- * @param gradeLevel Grade level ('CM1' or 'CM2')
+ * @param gradeLevel Grade level ('CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e')
  * @param assessmentId Optional assessment ID
  * @param parentId Optional parent ID (for Parent Portal flow)
  * @returns Response object with token, wsUrl, and metadata
@@ -22,7 +24,7 @@ export async function generateAgentJWT(
   userId: string,
   roomName: string,
   language: 'en' | 'fr' = 'fr',
-  gradeLevel: 'CM1' | 'CM2' = 'CM1',
+  gradeLevel: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e' = 'CM1',
   assessmentId?: string,
   parentId?: string
 ): Promise<{ token: string; wsUrl?: string; metadata?: any }> {
@@ -69,7 +71,7 @@ export async function generateAgentJWT(
     // Return the full response object including metadata for agent dispatch
     return data;
   } catch (error) {
-    console.error('Error generating agent JWT:', error);
+    logger.error('Error generating agent JWT:', error);
     throw error;
   }
 }
@@ -108,7 +110,7 @@ export async function postJWTToAgentWorker(
     const data = await response.json();
     return { success: data.success === true, message: data.message };
   } catch (error) {
-    console.error('Error posting JWT to agent worker:', error);
+    logger.error('Error posting JWT to agent worker:', error);
     throw error;
   }
 }

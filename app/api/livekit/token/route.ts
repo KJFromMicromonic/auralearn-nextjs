@@ -13,6 +13,7 @@
 
 import { AccessToken } from 'livekit-server-sdk';
 import { NextResponse } from 'next/server';
+import { serverLogger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   try {
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
     const apiSecret = process.env.LIVEKIT_API_SECRET;
 
     if (!apiKey || !apiSecret) {
-      console.error('LiveKit credentials not configured');
+      serverLogger.error('LiveKit credentials not configured');
       return NextResponse.json(
         { error: 'LiveKit credentials not configured' },
         { status: 500 }
@@ -66,11 +67,11 @@ export async function POST(request: Request) {
     // Generate JWT token
     const token = await at.toJwt();
 
-    console.log(`✅ Generated LiveKit token for room: ${room_name}, identity: ${identity}`);
+    serverLogger.log('✅ Generated LiveKit token');
 
     return NextResponse.json({ token });
   } catch (error) {
-    console.error('❌ Error generating LiveKit token:', error);
+    serverLogger.error('❌ Error generating LiveKit token:', error);
     return NextResponse.json(
       {
         error: 'Failed to generate token',

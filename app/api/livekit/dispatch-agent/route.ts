@@ -9,6 +9,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { serverLogger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   try {
@@ -46,14 +47,10 @@ export async function POST(request: Request) {
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
 
-    console.log('🔑 LiveKit config check:', {
-      url: originalLivekitUrl,
-      hasKey: !!apiKey,
-      hasSecret: !!apiSecret,
-    });
+    serverLogger.log('🔑 LiveKit config check');
 
     if (!originalLivekitUrl || !apiKey || !apiSecret) {
-      console.error('❌ LiveKit credentials missing');
+      serverLogger.error('❌ LiveKit credentials missing');
       return NextResponse.json(
         { error: 'LiveKit credentials not configured' },
         { status: 500 }
@@ -65,7 +62,7 @@ export async function POST(request: Request) {
       originalLivekitUrl.includes('localhost') ||
       originalLivekitUrl.includes('127.0.0.1');
 
-    console.log(`🔍 Original URL: ${originalLivekitUrl}, Dev Mode: ${isDevMode}`);
+    serverLogger.log(`🔍 Dev Mode: ${isDevMode}`);
 
     // In dev mode, return success immediately (agent worker started manually)
     if (isDevMode) {
@@ -73,13 +70,8 @@ export async function POST(request: Request) {
       // livekit-cli dev agent.py
       // So we'll just acknowledge the dispatch request
       // The agent worker will connect when it's started
-      console.log(
-        `📢 Agent dispatch requested for room: ${room_name}, token: ${assessment_token}`
-      );
-      console.log(
-        `💡 In dev mode: Make sure agent worker is running with: livekit-cli dev agent.py`
-      );
-      console.log(`   The agent will connect to room: ${room_name}`);
+      serverLogger.log('📢 Agent dispatch requested');
+      serverLogger.log('💡 In dev mode: Make sure agent worker is running with: livekit-cli dev agent.py');
 
       // Return success - the agent worker should be started separately
       return NextResponse.json({
@@ -103,7 +95,7 @@ export async function POST(request: Request) {
 
     // Production mode: Dispatch via LiveKit Cloud API
     try {
-      console.log(`🚀 Dispatching agent to production LiveKit: ${livekitUrl}`);
+      serverLogger.log(`🚀 Dispatching agent to production LiveKit: ${livekitUrl}`);
 
       // Build metadata object for dispatch
       const metadata: Record<string, any> = {};
@@ -149,7 +141,7 @@ export async function POST(request: Request) {
 
       if (!dispatchResponse.ok) {
         const errorText = await dispatchResponse.text();
-        console.error('❌ LiveKit dispatch error:', errorText);
+        serverLogger.error('❌ LiveKit dispatch error:', errorText);
         return NextResponse.json(
           { error: 'Failed to dispatch agent', details: errorText },
           { status: dispatchResponse.status }
@@ -158,17 +150,15 @@ export async function POST(request: Request) {
 
       const dispatchData = await dispatchResponse.json();
 
-      console.log(
-        `✅ Dispatched agent for room: ${room_name}, token: ${assessment_token}`
-      );
+      serverLogger.log('✅ Dispatched agent');
 
       return NextResponse.json({ success: true, job_id: dispatchData.job_id });
     } catch (fetchError) {
-      console.error('❌ Error calling LiveKit dispatch API:', fetchError);
+      serverLogger.error('❌ Error calling LiveKit dispatch API:', fetchError);
       // In dev mode, if the API call fails, still return success
       // The agent worker can be started manually
       if (isDevMode) {
-        console.log('💡 Dev mode: Agent worker should be started manually');
+        serverLogger.log('💡 Dev mode: Agent worker should be started manually');
         return NextResponse.json({
           success: true,
           message:
@@ -179,19 +169,11 @@ export async function POST(request: Request) {
       throw fetchError;
     }
   } catch (error) {
-    console.error('❌ Error dispatching agent:', error);
-    console.error(
+    serverLogger.error('❌ Error dispatching agent:', error);
+    serverLogger.error(
       '❌ Error stack:',
       error instanceof Error ? error.stack : 'No stack trace'
     );
-    console.error('❌ Error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      name: error instanceof Error ? error.name : 'Unknown',
-      livekitUrl: process.env.LIVEKIT_URL,
-      isDevMode:
-        process.env.LIVEKIT_URL?.includes('localhost') ||
-        process.env.LIVEKIT_URL?.includes('127.0.0.1'),
-    });
     return NextResponse.json(
       {
         error: 'Failed to dispatch agent',

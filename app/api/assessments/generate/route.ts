@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { serverLogger } from '@/lib/logger';
 import { generateAssessmentQuestions } from '@/services/gemini-assessment-generator';
 import type { CurriculumContext } from '@/services/gemini-assessment-generator';
 
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ questions }, { status: 200 });
   } catch (error) {
-    console.error('Error generating assessment questions:', error);
+    serverLogger.error('Error generating assessment questions:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate assessment questions';
     return NextResponse.json(
       { error: errorMessage },

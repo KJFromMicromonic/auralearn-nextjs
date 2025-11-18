@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { serverLogger } from '@/lib/logger';
 
 const MISTRALAI_API_URL = 'https://api.mistral.ai/v1/chat/completions';
 
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('MistralAI API error:', response.status, errorText);
+      serverLogger.error('MistralAI API error:', response.status, errorText);
       return NextResponse.json(
         { error: `MistralAI API error: ${response.status}`, details: errorText },
         { status: response.status }
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error proxying MistralAI request:', error);
+    serverLogger.error('Error proxying MistralAI request:', error);
     return NextResponse.json(
       { 
         error: 'Failed to proxy MistralAI request',

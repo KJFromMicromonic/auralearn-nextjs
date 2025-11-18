@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { serverLogger } from '@/lib/logger';
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
         });
 
       if (upsertError) {
-        console.error(`Error updating ${streakType} streak:`, upsertError);
+        serverLogger.error(`Error updating ${streakType} streak:`, upsertError);
       }
     });
 
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error in update streaks API:', error);
+    serverLogger.error('Error in update streaks API:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

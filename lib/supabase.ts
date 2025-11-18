@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 import { getEnvVar } from './utils';
+import { logger } from './logger';
 
 // Supabase configuration
 // In Next.js, NEXT_PUBLIC_* vars are available at build time and runtime
@@ -52,16 +53,10 @@ function createSupabaseClient() {
   }
 
   // Debug: Log configuration (only in development, client-side only)
-  const actualUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const actualKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-  
-  console.log('🔧 Supabase Configuration:', {
-    'getSupabaseUrl()': url,
-    'getSupabaseAnonKey() Length': key?.length || 0,
-    'Direct process.env.NEXT_PUBLIC_SUPABASE_URL': actualUrl || 'NOT SET',
-    'Direct process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY': actualKey ? `${actualKey.substring(0, 20)}...` : 'NOT SET',
-    'isPlaceholder': url.includes('placeholder'),
-    'All NEXT_PUBLIC_ vars': typeof process !== 'undefined' ? Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_')) : [],
+  logger.log('🔧 Supabase Configuration:', {
+    urlConfigured: !url.includes('placeholder'),
+    keyConfigured: key && !key.includes('placeholder'),
+    isPlaceholder: url.includes('placeholder'),
   });
 
   // Client-side: use actual credentials
@@ -75,18 +70,10 @@ function createSupabaseClient() {
       }
     });
   } else {
-    // Invalid credentials - log error with detailed debugging
-    console.error('❌ Cannot create Supabase client - using placeholder values');
-    console.error('Supabase URL:', url);
-    console.error('Supabase Key (first 20 chars):', key?.substring(0, 20));
-    console.error('Environment check:', {
-      'process.env.NEXT_PUBLIC_SUPABASE_URL': typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_SUPABASE_URL : 'N/A (no process)',
-      'process.env.VITE_SUPABASE_URL': typeof process !== 'undefined' ? process.env.VITE_SUPABASE_URL : 'N/A (no process)',
-      'process.env keys': typeof process !== 'undefined' ? Object.keys(process.env).filter(k => k.includes('SUPABASE')) : [],
-      'window location': typeof window !== 'undefined' ? window.location.href : 'N/A',
-    });
-    console.error('⚠️ IMPORTANT: Restart the Next.js dev server after adding/updating .env file!');
-    console.error('📝 The .env file should be in the auralearn-nextjs/ directory with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    // Invalid credentials - log error (sanitized)
+    logger.error('❌ Cannot create Supabase client - using placeholder values');
+    logger.error('⚠️ IMPORTANT: Restart the Next.js dev server after adding/updating .env file!');
+    logger.error('📝 The .env file should be in the auralearn-nextjs/ directory with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
     return createClient('https://placeholder.supabase.co', 'placeholder-key', {
       global: { headers: {} }
     });

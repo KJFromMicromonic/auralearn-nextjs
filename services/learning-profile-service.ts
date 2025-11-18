@@ -22,6 +22,7 @@ import {
   generateCognitiveProfile,
   getDomainInterpretation
 } from './gemini-cognitive-generator';
+import { logger } from '@/lib/logger';
 
 /**
  * Learning snapshot types
@@ -131,7 +132,7 @@ export async function needsCognitiveAssessment(studentId: string): Promise<boole
     if (error) throw error;
     return data === true;
   } catch (error) {
-    console.error('Error checking assessment need:', error);
+    logger.error('Error checking assessment need:', error);
     return true; // Default to true if error
   }
 }
@@ -154,7 +155,7 @@ export async function getNextAssessmentDate(studentId: string): Promise<Date | n
 
     return data?.next_assessment_date ? new Date(data.next_assessment_date) : null;
   } catch (error) {
-    console.error('Error getting next assessment date:', error);
+    logger.error('Error getting next assessment date:', error);
     return null;
   }
 }
@@ -193,10 +194,10 @@ export async function initiateCognitiveAssessment(
       // Use existing questions
       questionsId = existingQuestions.id;
       questions = existingQuestions.questions as CognitiveQuestion[];
-      console.log('Using existing questions for student:', studentId);
+      logger.log('Using existing questions for student');
     } else {
       // Generate new questions
-      console.log('Generating new learning profile questions...');
+      logger.log('Generating new learning profile questions...');
       const assessment = await generateCognitiveAssessment(language, 'CM1');
       questions = assessment.questions;
 
@@ -213,7 +214,7 @@ export async function initiateCognitiveAssessment(
 
       if (insertError) throw insertError;
       questionsId = newQuestions.id;
-      console.log('New questions generated and stored:', questionsId);
+      logger.log('New questions generated and stored');
     }
 
     // Create assessment session
@@ -231,14 +232,14 @@ export async function initiateCognitiveAssessment(
 
     if (sessionError) throw sessionError;
 
-    console.log('Learning profile session created:', session.id);
+    logger.log('Learning profile session created');
 
     return {
       session: session as CognitiveAssessmentSession,
       questions,
     };
   } catch (error) {
-    console.error('Error initiating learning snapshot:', error);
+    logger.error('Error initiating learning snapshot:', error);
     throw new Error('Failed to initiate learning snapshot');
   }
 }
@@ -261,9 +262,9 @@ export async function startAssessment(
       .eq('id', assessmentId);
 
     if (error) throw error;
-    console.log('Assessment started:', assessmentId);
+    logger.log('Assessment started');
   } catch (error) {
-    console.error('Error starting assessment:', error);
+    logger.error('Error starting assessment:', error);
     throw error;
   }
 }
@@ -274,7 +275,7 @@ export async function startAssessment(
  */
 function normalizeDomain(domain: string | CognitiveDomain): CognitiveDomain {
   if (!domain || typeof domain !== 'string') {
-    console.warn(`Invalid domain value: ${domain}, defaulting to "processing_speed"`);
+    logger.warn('Invalid domain value, defaulting to "processing_speed"');
     return 'processing_speed';
   }
   
@@ -320,7 +321,7 @@ function normalizeDomain(domain: string | CognitiveDomain): CognitiveDomain {
   
   const normalized = domainMap[domainLower];
   if (!normalized) {
-    console.warn(`Unknown domain value: "${domain}" (normalized: "${domainLower}"), defaulting to "processing_speed"`);
+    logger.warn('Unknown domain value, defaulting to "processing_speed"');
     return 'processing_speed';
   }
   
@@ -339,7 +340,7 @@ export async function submitResponse(
     const normalizedDomain = normalizeDomain(response.domain);
     
     if (normalizedDomain !== response.domain) {
-      console.log(`Domain normalized: "${response.domain}" -> "${normalizedDomain}"`);
+      logger.log('Domain normalized');
     }
     
     const { error } = await supabase
@@ -354,19 +355,15 @@ export async function submitResponse(
       });
 
     if (error) {
-      console.error('Supabase error details:', {
+      logger.error('Supabase error details:', {
         message: error.message,
-        details: error.details,
-        hint: error.hint,
         code: error.code,
-        domain: normalizedDomain,
-        originalDomain: response.domain,
       });
       throw error;
     }
-    console.log(`Response submitted for Q${response.question_id} (domain: ${normalizedDomain})`);
+    logger.log('Response submitted');
   } catch (error) {
-    console.error('Error submitting response:', error);
+    logger.error('Error submitting response:', error);
     throw error;
   }
 }
@@ -396,11 +393,11 @@ export async function completeAssessment(
     }
 
     const { result } = await response.json();
-    console.log('Learning snapshot completed and insights calculated:', result.id);
+    logger.log('Learning snapshot completed and insights calculated');
 
     return result as AssessmentResult;
   } catch (error) {
-    console.error('Error completing assessment:', error);
+    logger.error('Error completing assessment:', error);
     throw error;
   }
 }
@@ -501,14 +498,14 @@ export async function generateParentLink(
     const baseUrl = window.location.origin;
     const assessmentLink = `${baseUrl}/parent-assessment/${link.access_token}`;
 
-    console.log('Parent assessment link generated:', link.access_token);
+    logger.log('Parent assessment link generated');
 
     return {
       accessToken: link.access_token,
       link: assessmentLink,
     };
   } catch (error) {
-    console.error('Error generating parent link:', error);
+    logger.error('Error generating parent link:', error);
     throw error;
   }
 }
@@ -553,7 +550,7 @@ export async function validateParentToken(
       questions: link.learning_profile_questions.questions as CognitiveQuestion[],
     };
   } catch (error) {
-    console.error('Error validating parent token:', error);
+    logger.error('Error validating parent token:', error);
     return { valid: false };
   }
 }
@@ -594,7 +591,7 @@ export async function getAssessmentResult(
     const { data } = await response.json();
     return data as AssessmentResult | null;
   } catch (error) {
-    console.error('Error fetching assessment result:', error);
+    logger.error('Error fetching assessment result:', error);
     return null;
   }
 }
@@ -692,7 +689,7 @@ export async function generateTriangulationReport(
       recommended_actions: recommendedActions,
     };
   } catch (error) {
-    console.error('Error generating triangulation report:', error);
+    logger.error('Error generating triangulation report:', error);
     throw error;
   }
 }

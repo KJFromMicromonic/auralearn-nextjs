@@ -6,6 +6,7 @@
 
 import { Room, RoomEvent, Track, RemoteTrack, RemoteTrackPublication, RemoteParticipant } from 'livekit-client';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 /**
  * Get LiveKit access token for a user
@@ -54,7 +55,7 @@ export async function getLiveKitToken(roomName: string, identity: string): Promi
 
     return data.token;
   } catch (error) {
-    console.error('Error getting LiveKit token:', error);
+    logger.error('Error getting LiveKit token:', error);
     throw error;
   }
 }
@@ -76,7 +77,7 @@ export interface DispatchAgentOptions {
   student_id?: string;        // Parent Portal flow
   questions?: any[];          // Questions from JWT (Parent Portal flow)
   language?: 'en' | 'fr';     // Language preference
-  grade_level?: 'CM1' | 'CM2'; // Grade level
+  grade_level?: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e'; // Grade level
   assessment_id?: string;     // Assessment ID
 }
 
@@ -109,15 +110,15 @@ export async function dispatchAuraVoiceAgent(
             const errorText = await response.text();
             errorData = { error: errorText || response.statusText };
           }
-          console.error('Dispatch agent error response:', errorData);
+          logger.error('Dispatch agent error response:', errorData);
           throw new Error(`Failed to dispatch agent: ${errorData.error || errorData.details || response.statusText}`);
         }
 
         const data = await response.json();
-        console.log('Dispatch agent success:', data);
+        logger.log('Dispatch agent success:', data);
         return { success: data.success === true, job_id: data.job_id };
   } catch (error) {
-    console.error('Error dispatching agent:', error);
+    logger.error('Error dispatching agent:', error);
     throw error;
   }
 }
@@ -151,24 +152,13 @@ export async function connectToLiveKitRoom(
   });
 
   try {
-    console.log('🔌 Attempting to connect to LiveKit room:', {
-      url,
-      roomName,
-      tokenLength: token.length,
-      tokenPreview: token.substring(0, 20) + '...',
-    });
+    logger.log('🔌 Attempting to connect to LiveKit room');
     
     await room.connect(url, token);
-    console.log('✅ Connected to LiveKit room:', roomName);
+    logger.log('✅ Connected to LiveKit room');
     return room;
   } catch (error) {
-    console.error('❌ Error connecting to LiveKit room:', error);
-    console.error('Connection details:', {
-      url,
-      roomName,
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      errorName: error instanceof Error ? error.name : 'Unknown',
-    });
+    logger.error('❌ Error connecting to LiveKit room:', error);
     
     // Provide helpful error messages
     if (error instanceof Error) {
@@ -205,30 +195,30 @@ export function setupRoomHandlers(
   onDisconnected?: () => void
 ) {
   room.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-    console.log('Track subscribed:', track.kind, participant.identity);
+    logger.log('Track subscribed:', track.kind, participant.identity);
     if (onTrackSubscribed) {
       onTrackSubscribed(track, publication, participant);
     }
   });
 
   room.on(RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
-    console.log('Track unsubscribed:', track.kind, participant.identity);
+    logger.log('Track unsubscribed:', track.kind, participant.identity);
     track.detach();
   });
 
   room.on(RoomEvent.Disconnected, () => {
-    console.log('Disconnected from room');
+    logger.log('Disconnected from room');
     if (onDisconnected) {
       onDisconnected();
     }
   });
 
   room.on(RoomEvent.ParticipantConnected, (participant) => {
-    console.log('Participant connected:', participant.identity);
+    logger.log('Participant connected:', participant.identity);
   });
 
   room.on(RoomEvent.ParticipantDisconnected, (participant) => {
-    console.log('Participant disconnected:', participant.identity);
+    logger.log('Participant disconnected:', participant.identity);
   });
 }
 
