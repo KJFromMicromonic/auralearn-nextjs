@@ -1,42 +1,38 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  BookOpen, 
-  Clock, 
+import {
+  BookOpen,
+  Clock,
   CheckCircle2,
   Filter,
   Search,
   AlertCircle,
-  Target
+  Target,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getStudentsForParent, StudentWithClass } from "@/services/student-service";
-import { 
-  getActivitiesFromTeachingGuides, 
+import {
+  getActivitiesFromTeachingGuides,
   logActivityCompletion,
   getActivityHistory,
-  ActivityWithSource 
+  ActivityWithSource,
 } from "@/services/parent-activity-service";
+import {
+  getAIActivityRecommendations,
+  PersonalizedActivityRecommendation,
+} from "@/services/ai-activity-recommender";
 import ChildSwitcher from "@/components/ChildSwitcher";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
-import { Activity } from "@/lib/supabase";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-// ActivityWithType is now imported from parent-activity-service
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function ParentActivitiesPage() {
   const { user } = useAuth();
@@ -44,16 +40,22 @@ export default function ParentActivitiesPage() {
   const router = useRouter();
   const [students, setStudents] = useState<StudentWithClass[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const [activities, setActivities] = useState<ActivityWithSource[]>([]);
-  const [filteredActivities, setFilteredActivities] = useState<ActivityWithSource[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [availableActivities, setAvailableActivities] = useState<ActivityWithSource[]>([]);
+  const [recommendations, setRecommendations] = useState<PersonalizedActivityRecommendation[]>([]);
+  const [filteredRecommendations, setFilteredRecommendations] = useState<PersonalizedActivityRecommendation[]>([]);
+  const [summary, setSummary] = useState("");
+  const [insights, setInsights] = useState<string[]>([]);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  const [isLoadingStudents, setIsLoadingStudents] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [lastGeneratedAt, setLastGeneratedAt] = useState<Date | null>(null);
   const [completedActivities, setCompletedActivities] = useState<Set<string>>(new Set());
   const [activityHistory, setActivityHistory] = useState<any[]>([]);
-  
+
   // Filters
-  const [timeFilter, setTimeFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [timeFilter, setTimeFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch linked students
   useEffect(() => {
@@ -61,7 +63,7 @@ export default function ParentActivitiesPage() {
       if (!user?.email) return;
 
       try {
-        setIsLoading(true);
+        setIsLoadingStudents(true);
         const linkedStudents = await getStudentsForParent(user.email);
         setStudents(linkedStudents);
 
@@ -76,82 +78,183 @@ export default function ParentActivitiesPage() {
           variant: "destructive",
         });
       } finally {
-        setIsLoading(false);
+        setIsLoadingStudents(false);
       }
     }
 
     loadStudents();
   }, [user?.email, toast]);
 
-  // Load activities from teaching guides
-  useEffect(() => {
-    async function loadActivities() {
-      if (!selectedStudentId || !user?.email) {
-        setActivities([]);
+  const parseDurationToMinutes = (duration?: string): number => {
+    if (!duration) return 15;
+    const match = duration.match(/(\d+)/);
+    if (match && match[1]) {
+      return parseInt(match[1], 10);
+    }
+    return 15;
+  };
+
+  const buildFallbackRecommendations = (activities: ActivityWithSource[]): PersonalizedActivityRecommendation[] => {
+    return activities.slice(0, 6).map((activity) => ({
+      activity,
+      confidence: 0.5,
+      reasoning: "Recommendation based on teaching guide strategies for this profile.",
+      expectedOutcome: "Keeps your child practicing core skills.",
+      bestTimeOfDay: "afternoon",
+      estimatedEngagement: 3,
+      whyNow: "Matches current learning focus.",
+      expectedDuration: parseDurationToMinutes(activity.duration),
+    }));
+  };
+
+  const generatePersonalizedActivities = useCallback(
+    async (
+      studentId: string,
+      options?: {
+        preferredType?: "strength" | "support" | "flexibility" | "general";
+        availableTimeLabel?: string;
+        showToast?: boolean;
+      }
+    ) => {
+      if (!user?.email || !user?.clerk_id) {
+        toast({
+          title: "Missing account information",
+          description: "Please sign in again to refresh your parent profile.",
+          variant: "destructive",
+        });
         return;
       }
 
+      const student = students.find((s) => s.id === studentId);
+      if (!student) {
+        toast({
+          title: "Student not found",
+          description: "Please select a child to continue.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsGenerating(true);
+      let latestGuideActivities: ActivityWithSource[] = [];
       try {
-        setIsLoading(true);
-        // Get activities from teaching guides
-        const guideActivities = await getActivitiesFromTeachingGuides(selectedStudentId, user.email);
-        
-        // Load activity history to mark completed activities
-        const history = await getActivityHistory(selectedStudentId);
-        const completedSet = new Set(history.map(a => a.activity_name));
+        const [guideActivities, history] = await Promise.all([
+          getActivitiesFromTeachingGuides(studentId, user.email),
+          getActivityHistory(studentId),
+        ]);
+        latestGuideActivities = guideActivities;
+        setAvailableActivities(guideActivities);
+
+        const completedSet = new Set(history.map((a) => a.activity_name));
         setCompletedActivities(completedSet);
         setActivityHistory(history);
 
-        setActivities(guideActivities);
+        if (guideActivities.length === 0) {
+          setRecommendations([]);
+          setFilteredRecommendations([]);
+          setSummary("");
+          setInsights([]);
+          setGenerationError("We couldn't find activities for this profile yet. Please check back soon.");
+          return;
+        }
+
+        const availableTimeLabel = options?.availableTimeLabel;
+        const availableTime =
+          availableTimeLabel === "short"
+            ? 10
+            : availableTimeLabel === "medium"
+            ? 20
+            : availableTimeLabel === "long"
+            ? 35
+            : 30;
+
+        const response = await getAIActivityRecommendations(
+          {
+            studentId,
+            student,
+            clerkId: user.clerk_id,
+            availableTime,
+            preferredTypes: options?.preferredType ? [options.preferredType] : undefined,
+            limit: 6,
+          },
+          guideActivities
+        );
+
+        setRecommendations(response.recommendations);
+        setSummary(response.summary);
+        setInsights(response.insights || []);
+        setGenerationError(null);
+        setLastGeneratedAt(new Date());
+
+        if (options?.showToast) {
+          toast({
+            title: "New recommendations ready",
+            description: "We generated fresh, personalized activities for your child.",
+          });
+        }
       } catch (error) {
-        console.error('Error loading activities:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load activities. Showing sample activities.",
-          variant: "destructive",
-        });
-        // Fallback to empty array - will show "no activities" message
-        setActivities([]);
+        console.error("Error generating activities:", error);
+        setGenerationError("We couldn't personalize activities right now. Showing standard ideas instead.");
+        const fallbackSource = latestGuideActivities.length > 0 ? latestGuideActivities : availableActivities;
+        if (fallbackSource.length > 0) {
+          const fallbackRecommendations = buildFallbackRecommendations(fallbackSource);
+          setRecommendations(fallbackRecommendations);
+          setSummary("Activities pulled from your child's teaching guide.");
+          setInsights([]);
+        } else {
+          setRecommendations([]);
+          setSummary("");
+          setInsights([]);
+        }
       } finally {
-        setIsLoading(false);
+        setIsGenerating(false);
       }
+    },
+    [availableActivities, students, toast, user?.clerk_id, user?.email]
+  );
+
+  useEffect(() => {
+    if (!selectedStudentId || !user?.email || students.length === 0) {
+      setRecommendations([]);
+      setFilteredRecommendations([]);
+      return;
     }
 
-    loadActivities();
-  }, [selectedStudentId, user?.email, toast]);
+    void generatePersonalizedActivities(selectedStudentId);
+  }, [generatePersonalizedActivities, selectedStudentId, students.length, user?.email]);
 
   // Apply filters
   useEffect(() => {
-    let filtered = [...activities];
+    let filtered = [...recommendations];
 
     // Time filter
     if (timeFilter !== 'all') {
-      filtered = filtered.filter(activity => {
-        const duration = activity.duration.toLowerCase();
-        if (timeFilter === 'short' && (duration.includes('5') || duration.includes('10'))) return true;
-        if (timeFilter === 'medium' && (duration.includes('15') || duration.includes('20'))) return true;
-        if (timeFilter === 'long' && (duration.includes('30') || duration.includes('45'))) return true;
-        return false;
+      filtered = filtered.filter(rec => {
+        const minutes = parseDurationToMinutes(rec.activity.duration);
+        if (timeFilter === 'short') return minutes <= 12;
+        if (timeFilter === 'medium') return minutes > 12 && minutes <= 25;
+        if (timeFilter === 'long') return minutes > 25;
+        return true;
       });
     }
 
     // Type filter
     if (typeFilter !== 'all') {
-      filtered = filtered.filter(activity => activity.type === typeFilter);
+      filtered = filtered.filter(rec => (rec.activity.type || 'general') === typeFilter);
     }
 
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(activity => 
-        activity.name.toLowerCase().includes(query) ||
-        activity.materials.some(m => m.toLowerCase().includes(query)) ||
-        activity.steps.some(s => s.toLowerCase().includes(query))
+      filtered = filtered.filter(rec => 
+        rec.activity.name.toLowerCase().includes(query) ||
+        rec.activity.materials?.some(m => m.toLowerCase().includes(query)) ||
+        rec.activity.steps?.some(s => s.toLowerCase().includes(query))
       );
     }
 
-    setFilteredActivities(filtered);
-  }, [activities, timeFilter, typeFilter, searchQuery]);
+    setFilteredRecommendations(filtered);
+  }, [recommendations, timeFilter, typeFilter, searchQuery]);
 
   const handleMarkComplete = async (activity: ActivityWithSource) => {
     if (!user?.id || !selectedStudentId) {
@@ -210,6 +313,17 @@ export default function ParentActivitiesPage() {
     }
   };
 
+  const handleRegenerateClick = () => {
+    if (!selectedStudentId) return;
+    const preferredType =
+      typeFilter !== "all" ? (typeFilter as "strength" | "support" | "flexibility" | "general") : undefined;
+    void generatePersonalizedActivities(selectedStudentId, {
+      preferredType,
+      availableTimeLabel: timeFilter,
+      showToast: true,
+    });
+  };
+
   const getTypeBadge = (type?: string) => {
     switch (type) {
       case 'strength':
@@ -223,7 +337,7 @@ export default function ParentActivitiesPage() {
     }
   };
 
-  if (isLoading && students.length === 0) {
+  if (isLoadingStudents && students.length === 0) {
     return (
       <ProtectedRoute requireRole="parent">
         <Layout>
@@ -340,16 +454,38 @@ export default function ParentActivitiesPage() {
                 {/* Activities Grid */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between flex-wrap gap-4">
-                    <h2 className="text-2xl font-bold">
-                      {filteredActivities.length} Activity{filteredActivities.length !== 1 ? 'ies' : ''} Found
-                    </h2>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => router.push('/parent-guide')}
-                      >
-                        Generate More Activities
+                    <div>
+                      <h2 className="text-2xl font-bold">
+                        {filteredRecommendations.length} Activity{filteredRecommendations.length !== 1 ? 'ies' : ''} Ready
+                      </h2>
+                      {lastGeneratedAt && (
+                        <p className="text-xs text-muted-foreground">
+                          Last updated {lastGeneratedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" onClick={handleRegenerateClick} disabled={isGenerating}>
+                        {isGenerating ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <BookOpen className="w-4 h-4 mr-2" />
+                            Generate New Activities
+                          </>
+                        )}
                       </Button>
+                      {selectedStudentId && (
+                        <Button
+                          variant="outline"
+                          onClick={() => router.push(`/parent/learning-snapshot/${selectedStudentId}`)}
+                        >
+                          View Learning Profile
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         onClick={() => router.push('/parent/challenges')}
@@ -361,22 +497,50 @@ export default function ParentActivitiesPage() {
                     </div>
                   </div>
 
-                  {filteredActivities.length === 0 ? (
+                  {generationError && (
+                    <Card>
+                      <CardContent className="py-4">
+                        <p className="text-sm text-yellow-800">{generationError}</p>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {summary && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Personalized Summary</CardTitle>
+                        <CardDescription>{summary}</CardDescription>
+                      </CardHeader>
+                      {insights && insights.length > 0 && (
+                        <CardContent>
+                          <p className="text-sm font-medium mb-2">Key insights:</p>
+                          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                            {insights.map((insight, idx) => (
+                              <li key={idx}>{insight}</li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      )}
+                    </Card>
+                  )}
+
+                  {filteredRecommendations.length === 0 ? (
                     <Card>
                       <CardContent className="flex flex-col items-center justify-center py-12">
                         <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
                         <h3 className="text-lg font-semibold mb-2">No Activities Found</h3>
                         <p className="text-sm text-muted-foreground text-center mb-4">
-                          Try adjusting your filters or generate new activities from the Support Strategies page.
+                          Try adjusting your filters or tap “Generate New Activities” to refresh personalized ideas.
                         </p>
-                        <Button onClick={() => router.push('/parent-guide')}>
-                          Go to Support Strategies
+                        <Button onClick={handleRegenerateClick} disabled={isGenerating}>
+                          Generate Activities
                         </Button>
                       </CardContent>
                     </Card>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {filteredActivities.map((activity, index) => {
+                      {filteredRecommendations.map((recommendation, index) => {
+                        const { activity } = recommendation;
                         const isCompleted = completedActivities.has(activity.name);
                         return (
                           <Card 
@@ -405,6 +569,22 @@ export default function ParentActivitiesPage() {
                               </div>
                             </CardHeader>
                             <CardContent className="space-y-4">
+                              <div className="text-sm text-muted-foreground space-y-1">
+                                <div className="flex flex-wrap gap-3 text-xs uppercase tracking-wide text-foreground/70">
+                                  <span>Confidence {(recommendation.confidence * 100).toFixed(0)}%</span>
+                                  <span>Best time: {recommendation.bestTimeOfDay}</span>
+                                  <span>Engagement {recommendation.estimatedEngagement}/5</span>
+                                  <span>Duration ~{recommendation.expectedDuration} min</span>
+                                </div>
+                                <p>{recommendation.reasoning}</p>
+                                <p className="text-xs">
+                                  <strong>Why now:</strong> {recommendation.whyNow}
+                                </p>
+                                <p className="text-xs">
+                                  <strong>Expected outcome:</strong> {recommendation.expectedOutcome}
+                                </p>
+                              </div>
+
                               {activity.materials && activity.materials.length > 0 && (
                                 <div>
                                   <p className="text-xs font-medium text-muted-foreground mb-2">

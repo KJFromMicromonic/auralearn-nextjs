@@ -36,6 +36,11 @@ export interface ChallengeStreak {
   last_activity_date?: string;
 }
 
+export interface ChallengeOverview {
+  history: ChallengeProgressRecord[];
+  streaks: ChallengeStreak[];
+}
+
 /**
  * Assign a weekly challenge to a student
  * Uses API route to bypass RLS issues with Clerk JWT
@@ -262,6 +267,47 @@ export async function getChallengeHistory(
     console.error('Error fetching challenge history:', error);
     return [];
   }
+}
+
+/**
+ * Get challenge history and streaks via secure API route (recommended for parents).
+ *
+ * @param studentId - Student UUID
+ * @param clerkId - Authenticated clerk user ID
+ * @param limit - Max number of history entries
+ */
+export async function getChallengeOverview(
+  studentId: string,
+  clerkId: string,
+  limit: number = 20
+): Promise<ChallengeOverview> {
+  if (!clerkId) {
+    throw new Error('Clerk user ID is required to fetch challenge overview');
+  }
+
+  const params = new URLSearchParams({
+    studentId,
+    clerkId,
+    limit: limit.toString(),
+  });
+
+  const response = await fetch(`/api/challenges/progress?${params.toString()}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(errorData.error || `Failed to load challenge overview (HTTP ${response.status})`);
+  }
+
+  const { data } = (await response.json()) as { data: ChallengeOverview };
+  return {
+    history: data?.history || [],
+    streaks: data?.streaks || [],
+  };
 }
 
 /**

@@ -20,12 +20,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getStudentsForParent, StudentWithClass } from "@/services/student-service";
-import { getLearningProfileSummary } from "@/services/parent-dashboard-service";
+import { getLearningProfileSummary, LearningProfileSummary } from "@/services/parent-dashboard-service";
 import ChildSwitcher from "@/components/ChildSwitcher";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   AdaptabilityChallenge,
   ChallengePillar,
@@ -39,13 +40,18 @@ import {
   getPillarDescription,
 } from "@/services/adaptability-challenges-service";
 import {
-  getStreaks,
-  getChallengeHistory,
+  getChallengeOverview,
   assignWeeklyChallenge,
   startChallenge,
   completeChallenge,
   ChallengeStreak,
 } from "@/services/challenge-progress-service";
+import {
+  createChallengeSession,
+  getActiveChallengeSession,
+  completeChallengeSession,
+  ChallengeSession,
+} from "@/services/adaptability-challenge-session-service";
 import {
   Select,
   SelectContent,
@@ -77,6 +83,7 @@ export default function ParentChallengesPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+  const { language } = useLanguage();
   const [students, setStudents] = useState<StudentWithClass[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -93,6 +100,11 @@ export default function ParentChallengesPage() {
   // Streaks from database
   const [streaks, setStreaks] = useState<ChallengeStreak[]>([]);
   const [challengeHistory, setChallengeHistory] = useState<any[]>([]);
+  const [activeChallengeId, setActiveChallengeId] = useState<string | null>(null);
+  const [activeSession, setActiveSession] = useState<ChallengeSession | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  const [currentProfile, setCurrentProfile] = useState<LearningProfileSummary | null>(null);
   
   // Loading states for challenge actions
   const [startingChallengeId, setStartingChallengeId] = useState<string | null>(null);
@@ -133,6 +145,10 @@ export default function ParentChallengesPage() {
       setAllChallenges([]);
       setStreaks([]);
       setChallengeHistory([]);
+      setActiveChallengeId(null);
+      setActiveSession(null);
+      setSessionError(null);
+      setSessionLoading(false);
       return;
     }
 
@@ -142,10 +158,32 @@ export default function ParentChallengesPage() {
       try {
         // Get student profile for recommendations
         const profile = await getLearningProfileSummary(selectedStudentId, user.clerk_id);
+        setCurrentProfile(profile);
         
-        // Load challenge history first to avoid recent challenges
-        const history = await getChallengeHistory(selectedStudentId);
+        // Load challenge history and streaks via secure API
+        const overview = await getChallengeOverview(selectedStudentId, user.clerk_id);
+        const history = overview.history || [];
         setChallengeHistory(history);
+        const loadedChallenges: AdaptabilityChallenge[] = getChallengesByCriteria({});
+        setAllChallenges(loadedChallenges);
+        setFilteredChallenges(loadedChallenges);
+
+        const activeProgress = history.find(
+          (entry) => entry.status === "in_progress" || entry.status === "pending"
+        );
+        setActiveChallengeId(activeProgress?.challenge_id || null);
+        if (activeProgress?.id) {
+          const existingSession = await loadSessionForProgress(activeProgress.id);
+          if (!existingSession) {
+            const activeChallenge = loadedChallenges.find((c) => c.id === activeProgress.challenge_id);
+            if (activeChallenge) {
+              await generateSessionForChallenge(activeChallenge, activeProgress.id);
+            }
+          }
+        } else {
+          setActiveSession(null);
+          setSessionError(null);
+        }
         
         // Get recommended weekly challenge
         const recommended = getRecommendedWeeklyChallenge({
@@ -157,14 +195,8 @@ export default function ParentChallengesPage() {
         
         setWeeklyChallenge(recommended);
 
-        // Get all challenges
-        const all = getChallengesByCriteria({});
-        setAllChallenges(all);
-        setFilteredChallenges(all);
-
         // Load streaks
-        const studentStreaks = await getStreaks(selectedStudentId);
-        setStreaks(studentStreaks);
+        setStreaks(overview.streaks || []);
       } catch (error) {
         console.error('Error loading challenges:', error);
       }
@@ -193,6 +225,66 @@ export default function ParentChallengesPage() {
     setFilteredChallenges(filtered);
   }, [allChallenges, selectedPillar, selectedLevel, selectedFormat, selectedMood]);
 
+  const loadSessionForProgress = async (progressId: string): Promise<ChallengeSession | null> => {
+    if (!user?.clerk_id) return null;
+    setSessionLoading(true);
+    try {
+      const session = await getActiveChallengeSession(progressId, user.clerk_id);
+      setActiveSession(session);
+      setSessionError(null);
+      return session;
+    } catch (error) {
+      console.error('Error loading challenge session:', error);
+      setActiveSession(null);
+      setSessionError('Unable to load your personalized challenge right now.');
+      return null;
+    } finally {
+      setSessionLoading(false);
+    }
+  };
+
+  const generateSessionForChallenge = async (challenge: AdaptabilityChallenge, progressId: string) => {
+    if (!selectedStudentId || !user?.clerk_id) {
+      toast({
+        title: "Error",
+        description: "Please select a child first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const student = students.find((s) => s.id === selectedStudentId);
+    if (!student) {
+      toast({
+        title: "Error",
+        description: "Student not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSessionLoading(true);
+    try {
+      const session = await createChallengeSession({
+        progressId,
+        studentId: selectedStudentId,
+        studentName: student.name,
+        challenge,
+        learningProfile: currentProfile,
+        clerkId: user.clerk_id,
+        language: (language || 'en').split('-')[0],
+      });
+      setActiveSession(session);
+      setSessionError(null);
+    } catch (error) {
+      console.error('Error generating challenge session:', error);
+      setSessionError('We could not generate a personalized challenge. Try again in a moment.');
+      setActiveSession(null);
+    } finally {
+      setSessionLoading(false);
+    }
+  };
+
   const handleStartChallenge = async (challenge: AdaptabilityChallenge) => {
     if (!selectedStudentId) {
       toast({
@@ -219,22 +311,23 @@ export default function ParentChallengesPage() {
 
       // Assign challenge if not already assigned
       const progress = await assignWeeklyChallenge(selectedStudentId, challenge, user.clerk_id);
-      await startChallenge(progress.id, user.clerk_id);
+      const startedProgress = await startChallenge(progress.id, user.clerk_id);
       
       toast({
         title: "Challenge Started! ✅",
-        description: `"${challenge.title}" is now active. You can track progress below.`,
+        description: `"${challenge.title}" is now active. Scroll to the coaching card for guidance.`,
         duration: 5000,
       });
       
       // Refresh data
-      const history = await getChallengeHistory(selectedStudentId);
-      setChallengeHistory(history);
+      const overview = await getChallengeOverview(selectedStudentId, user.clerk_id);
+      setChallengeHistory(overview.history || []);
+      setStreaks(overview.streaks || []);
       
       // Update UI immediately - mark challenge as in progress
-      setAllChallenges(prev => prev.map(c => 
-        c.id === challenge.id ? { ...c, isActive: true } : c
-      ));
+      setAllChallenges((prev) => prev.map((c) => (c.id === challenge.id ? { ...c, isActive: true } : c)));
+      setActiveChallengeId(challenge.id);
+      await generateSessionForChallenge(challenge, startedProgress.id);
     } catch (error: any) {
       console.error('Error starting challenge:', error);
       const errorMessage = error?.message || error?.details || 'Failed to start challenge';
@@ -250,6 +343,32 @@ export default function ParentChallengesPage() {
     } finally {
       setStartingChallengeId(null);
     }
+  };
+
+  const handleContinueChallenge = async (challenge: AdaptabilityChallenge) => {
+    if (!selectedStudentId) {
+      toast({
+        title: "Error",
+        description: "Please select a child first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const existingProgress = challengeHistory.find(
+      (p) => p.challenge_id === challenge.id && (p.status === 'in_progress' || p.status === 'pending')
+    );
+
+    if (!existingProgress) {
+      toast({
+        title: "Challenge not active",
+        description: "Please start the challenge first.",
+      });
+      return;
+    }
+
+    setActiveChallengeId(challenge.id);
+    await loadSessionForProgress(existingProgress.id);
   };
 
   const handleCompleteChallenge = async (challenge: AdaptabilityChallenge) => {
@@ -281,12 +400,14 @@ export default function ParentChallengesPage() {
 
       setCompletingChallengeId(challenge.id);
 
+      let progressId = existingProgress?.id;
       if (existingProgress) {
         await completeChallenge(existingProgress.id, user.clerk_id);
       } else {
         // Assign and complete
         const progress = await assignWeeklyChallenge(selectedStudentId, challenge, user.clerk_id);
         await completeChallenge(progress.id, user.clerk_id);
+        progressId = progress.id;
       }
       
       toast({
@@ -296,15 +417,21 @@ export default function ParentChallengesPage() {
       });
       
       // Refresh streaks and history
-      const studentStreaks = await getStreaks(selectedStudentId);
-      setStreaks(studentStreaks);
-      const history = await getChallengeHistory(selectedStudentId);
-      setChallengeHistory(history);
+      const overview = await getChallengeOverview(selectedStudentId, user.clerk_id);
+      setStreaks(overview.streaks || []);
+      setChallengeHistory(overview.history || []);
       
       // Update UI immediately - mark challenge as completed
-      setAllChallenges(prev => prev.map(c => 
-        c.id === challenge.id ? { ...c, isCompleted: true } : c
-      ));
+      setAllChallenges((prev) => prev.map((c) => (c.id === challenge.id ? { ...c, isCompleted: true } : c)));
+      if (activeChallengeId === challenge.id) {
+        setActiveChallengeId(null);
+      }
+
+      if (activeSession && progressId && activeSession.progress_id === progressId && user?.clerk_id) {
+        await completeChallengeSession(activeSession.id, user.clerk_id);
+        setActiveSession(null);
+        setSessionError(null);
+      }
     } catch (error) {
       console.error('Error completing challenge:', error);
       toast({
@@ -419,9 +546,9 @@ export default function ParentChallengesPage() {
                         <span className="text-sm font-medium text-blue-900">Strategy Switching</span>
                       </div>
                       <div className="text-3xl font-bold text-blue-900">
-                        {challengeHistory.filter(c => c.status === 'completed').length}
+                        {streaks.find(s => s.streak_type === 'strategy_switching')?.current_streak || 0}
                       </div>
-                      <p className="text-xs text-blue-700 mt-1">completed</p>
+                      <p className="text-xs text-blue-700 mt-1">days in a row</p>
                     </CardContent>
                   </Card>
                   <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
@@ -449,6 +576,142 @@ export default function ParentChallengesPage() {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Active Challenge Tracker */}
+                {activeChallengeId && (() => {
+                  const activeChallenge = allChallenges.find((c) => c.id === activeChallengeId) || weeklyChallenge;
+                  if (!activeChallenge) return null;
+                  const session =
+                    activeSession &&
+                    (activeSession.challenge_id === activeChallenge.id ||
+                      activeSession.challenge_id === activeChallenge.title)
+                      ? activeSession
+                      : null;
+                  const progressRecord = challengeHistory.find(
+                    (p) => p.challenge_id === activeChallenge.id && (p.status === 'in_progress' || p.status === 'pending')
+                  );
+
+                  return (
+                    <Card className="border-2 border-blue-200 bg-blue-50/40">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-blue-600" />
+                          Active Challenge Coaching
+                        </CardTitle>
+                        <CardDescription>
+                          Personalized steps for "{activeChallenge.title}"
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {sessionLoading && !session && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                            Generating challenge...
+                          </div>
+                        )}
+
+                        {session ? (
+                          <>
+                            <p className="text-sm font-medium text-foreground">{session.prompt}</p>
+                            {session.problem_statement && (
+                              <div className="bg-white/70 p-3 rounded-lg border border-blue-100">
+                                <p className="text-sm font-semibold mb-1 text-blue-900">Try this problem:</p>
+                                <p className="text-sm text-foreground whitespace-pre-line">{session.problem_statement}</p>
+                              </div>
+                            )}
+                            {session.materials?.length ? (
+                              <div>
+                                <p className="text-sm font-medium mb-2">Materials</p>
+                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                  {session.materials.map((item, idx) => (
+                                    <li key={idx}>{item}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : null}
+                            {session.child_steps?.length ? (
+                              <div>
+                                <p className="text-sm font-medium mb-2">Steps for your child</p>
+                                <ol className="list-decimal list-inside text-sm text-muted-foreground space-y-1">
+                                  {session.child_steps.map((step, idx) => (
+                                    <li key={idx}>{step}</li>
+                                  ))}
+                                </ol>
+                              </div>
+                            ) : null}
+                            {session.parent_tips?.length ? (
+                              <div className="bg-white/60 p-3 rounded-lg">
+                                <p className="text-sm font-medium mb-1">Coaching Tips</p>
+                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                  {session.parent_tips.map((tip, idx) => (
+                                    <li key={idx}>{tip}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : null}
+                            {session.reflection_questions?.length ? (
+                              <div className="bg-blue-100/60 p-3 rounded-lg">
+                                <p className="text-sm font-medium mb-1">Reflection Questions</p>
+                                <ul className="list-disc list-inside text-sm text-blue-900 space-y-1">
+                                  {session.reflection_questions.map((question, idx) => (
+                                    <li key={idx}>{question}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : null}
+                            {session.success_criteria?.length ? (
+                              <div>
+                                <p className="text-sm font-medium mb-1">Success looks like:</p>
+                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                  {session.success_criteria.map((criterion, idx) => (
+                                    <li key={idx}>{criterion}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : null}
+                            <p className="text-xs text-muted-foreground">
+                              Estimated time: {session.estimated_time || activeChallenge.estimatedTime || '10 minutes'}
+                            </p>
+                          </>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            Start the challenge to generate a personalized plan for your child.
+                          </div>
+                        )}
+
+                        {sessionError && !session && (
+                          <p className="text-xs text-red-600">{sessionError}</p>
+                        )}
+
+                        <div className="flex flex-wrap gap-2">
+                          {progressRecord && (
+                            <Button
+                              variant="outline"
+                              onClick={() => generateSessionForChallenge(activeChallenge, progressRecord.id)}
+                              disabled={sessionLoading}
+                            >
+                              <Sparkles className="w-4 h-4 mr-2" />
+                              Regenerate Challenge
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              const challenge = allChallenges.find((c) => c.id === activeChallenge.id);
+                              if (challenge) {
+                                void handleCompleteChallenge(challenge);
+                              }
+                            }}
+                            className="border-green-500 text-green-700 hover:bg-green-50 flex-1"
+                          >
+                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                            Mark Challenge Complete
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
 
                 {/* Weekly Challenge */}
                 {weeklyChallenge && (
@@ -486,7 +749,7 @@ export default function ParentChallengesPage() {
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="text-xl font-semibold">{weeklyChallenge.title}</h3>
                           {(() => {
-                            const status = getChallengeStatus(weeklyChallenge.id);
+                        const status = getChallengeStatus(weeklyChallenge.id);
                             if (status === 'completed') {
                               return (
                                 <Badge className="bg-green-100 text-green-800 border-green-300">
@@ -555,7 +818,11 @@ export default function ParentChallengesPage() {
                           return (
                             <div className="flex gap-2">
                               <Button
-                                onClick={() => handleStartChallenge(weeklyChallenge)}
+                                onClick={() =>
+                                  status === 'in_progress' || status === 'pending'
+                                    ? handleContinueChallenge(weeklyChallenge)
+                                    : handleStartChallenge(weeklyChallenge)
+                                }
                                 disabled={isDisabled}
                                 className={`flex-1 ${
                                   status === 'in_progress' || status === 'pending'
@@ -782,7 +1049,7 @@ export default function ParentChallengesPage() {
                                         <Button
                                           variant="outline"
                                           className="w-full border-blue-500 text-blue-700 hover:bg-blue-50"
-                                          onClick={() => handleStartChallenge(challenge)}
+                                          onClick={() => handleContinueChallenge(challenge)}
                                           disabled={isDisabled}
                                         >
                                           {isStarting ? (

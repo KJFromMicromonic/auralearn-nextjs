@@ -13,47 +13,69 @@ import {
   Target,
   CheckCircle2,
   AlertCircle,
-  BarChart3,
-  Calendar
+  Calendar,
+  User,
+  GraduationCap
 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
-import { getLearningProfileSummary } from "@/services/parent-dashboard-service";
+import { getLearningProfileSummary, LearningProfileSummary } from "@/services/parent-dashboard-service";
 import { AssessmentResult, getAssessmentResult } from "@/services/learning-profile-service";
+import { getStudentsForParent, StudentWithClass } from "@/services/student-service";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 export default function LearningSnapshotPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const studentId = params.studentId as string;
   const [assessmentResult, setAssessmentResult] = useState<AssessmentResult | null>(null);
+  const [learningProfile, setLearningProfile] = useState<LearningProfileSummary | null>(null);
+  const [student, setStudent] = useState<StudentWithClass | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function loadAssessmentResult() {
-      if (!studentId || !user?.clerk_id) return;
+    async function loadData() {
+      if (!studentId || !user?.clerk_id || !user?.email) return;
 
       try {
         setIsLoading(true);
-        // Get the latest assessment result
+        
+        // Load student information
+        const students = await getStudentsForParent(user.email);
+        const selectedStudent = students.find(s => s.id === studentId);
+        if (selectedStudent) {
+          setStudent(selectedStudent);
+        }
+
+        // Try to get full assessment result first
         const result = await getAssessmentResult(studentId, user.clerk_id);
         setAssessmentResult(result);
+
+        // Also get learning profile summary (may have data even if full result doesn't)
+        const profile = await getLearningProfileSummary(studentId, user.clerk_id);
+        setLearningProfile(profile);
       } catch (error) {
-        console.error('Error loading assessment result:', error);
-        // If no assessment exists, that's okay - we'll show a message
-        setAssessmentResult(null);
+        logger.error('Error loading learning snapshot data:', error);
+        toast({
+          title: t('errors.error'),
+          description: t('errors.loadingFailed'),
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     }
 
-    loadAssessmentResult();
-  }, [studentId, user?.clerk_id]);
+    loadData();
+  }, [studentId, user?.clerk_id, user?.email, toast, t]);
 
   const getDomainDisplayName = (domain: string): string => {
     const names: Record<string, string> = {
@@ -96,50 +118,179 @@ export default function LearningSnapshotPage() {
     );
   }
 
-  if (!assessmentResult) {
+  // Helper function to format category name
+  const formatCategoryName = (category?: string): string => {
+    if (!category) return '';
+    return category.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
+  // Show student profile with learning profile summary if available, even if no full assessment result
+  // Only show empty state if we have neither assessment result nor learning profile summary
+  const hasProfileData = assessmentResult || learningProfile;
+  
+  if (!hasProfileData) {
     return (
       <ProtectedRoute requireRole="parent">
         <Layout>
           <div className="min-h-screen bg-background p-8">
-            <div className="max-w-4xl mx-auto space-y-8">
+            <div className="max-w-6xl mx-auto space-y-8">
               <div className="flex items-center gap-4">
                 <Button
                   variant="ghost"
-                  onClick={() => router.back()}
+                  onClick={() => router.push('/parent/learning-snapshot')}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back
+                  {t('parentLearningSnapshot.backToDashboard')}
                 </Button>
               </div>
 
-              <Card className="border-2 border-dashed">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="w-5 h-5 text-purple-600" />
-                    Learning Snapshot
-                  </CardTitle>
-                  <CardDescription>
-                    Complete an assessment to see your child's learning profile
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <AlertCircle className="w-5 h-5" />
-                    <p>No learning snapshot available yet.</p>
+              {/* Header */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                    <Brain className="w-6 h-6 text-white" />
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Complete a Learning Snapshot assessment to understand your child's unique learning profile, 
-                    including their strengths, areas for support, and personalized recommendations.
-                  </p>
-                  <Button
-                    onClick={() => router.push(`/parent/cognitive-assessment/${studentId}`)}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
-                  >
-                    <Brain className="w-4 h-4 mr-2" />
-                    Start Learning Snapshot
-                  </Button>
-                </CardContent>
-              </Card>
+                  <div>
+                    <h1 className="text-4xl font-bold text-foreground">{t('parentLearningSnapshot.title')}</h1>
+                    <p className="text-muted-foreground">
+                      {student ? `${student.name}'s Learning Profile` : t('parentLearningSnapshot.description')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Student Information */}
+              {student && (
+                <Card className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 border-purple-200">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="w-5 h-5 text-purple-600" />
+                      {t('parentLearningSnapshot.studentInfo')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">{t('parentLearningSnapshot.studentName')}</p>
+                        <p className="text-lg font-semibold text-foreground">{student.name}</p>
+                      </div>
+                      {student.class_name && (
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1">
+                            <GraduationCap className="w-3 h-3" />
+                            {t('parentLearningSnapshot.class')}
+                          </p>
+                          <p className="text-lg font-semibold text-foreground">{student.class_name}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Learning Categories */}
+                    {(student.primary_category || student.secondary_category) && (
+                      <div className="pt-4 border-t">
+                        <p className="text-xs font-medium text-muted-foreground mb-3">{t('parentLearningSnapshot.learningCategories')}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {student.primary_category && (
+                            <Badge className="bg-purple-100 text-purple-800 text-sm px-3 py-1">
+                              {formatCategoryName(student.primary_category)}
+                            </Badge>
+                          )}
+                          {student.secondary_category && (
+                            <Badge className="bg-pink-100 text-pink-800 text-sm px-3 py-1">
+                              {formatCategoryName(student.secondary_category)}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Learning Profile Summary (if available but no full assessment) */}
+              {learningProfile && learningProfile.hasAssessment && (
+                <Card className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 border-purple-200">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Brain className="w-5 h-5 text-purple-600" />
+                      {t('parentLearningSnapshot.profileSummary')}
+                    </CardTitle>
+                    <CardDescription>
+                      {learningProfile.lastAssessmentDate && (
+                        <span>{t('parentLearningSnapshot.lastUpdated')}: {new Date(learningProfile.lastAssessmentDate).toLocaleDateString()}</span>
+                      )}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {learningProfile.profileSummary && (
+                      <p className="text-sm leading-relaxed text-foreground">
+                        {learningProfile.profileSummary}
+                      </p>
+                    )}
+                    
+                    {learningProfile.primaryStrengths && learningProfile.primaryStrengths.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-green-600" />
+                          {t('parentDashboard.strengths')}
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {learningProfile.primaryStrengths.map((strength, idx) => (
+                            <Badge key={idx} variant="secondary" className="bg-green-100 text-green-800">
+                              {strength}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {learningProfile.areasForSupport && learningProfile.areasForSupport.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                          <Heart className="w-4 h-4 text-blue-600" />
+                          {t('parentDashboard.areasForSupport')}
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {learningProfile.areasForSupport.map((area, idx) => (
+                            <Badge key={idx} variant="secondary" className="bg-blue-100 text-blue-800">
+                              {area}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* No Detailed Assessment Message (only if no learning profile summary) */}
+              {!learningProfile && (
+                <Card className="border-purple-200 bg-gradient-to-br from-purple-50/30 to-pink-50/30">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5 text-purple-600" />
+                      {t('parentLearningSnapshot.detailedProfilePending')}
+                    </CardTitle>
+                    <CardDescription>
+                      {t('parentLearningSnapshot.detailedProfileDescription')}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {t('parentLearningSnapshot.detailedProfileInfo')}
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={() => router.push('/parent-dashboard')}
+                      className="w-full"
+                    >
+                      {t('parentLearningSnapshot.backToDashboard')}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </Layout>
@@ -155,10 +306,10 @@ export default function LearningSnapshotPage() {
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
-                onClick={() => router.back()}
+                onClick={() => router.push('/parent/learning-snapshot')}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
+                {t('parentLearningSnapshot.backToDashboard')}
               </Button>
             </div>
 
@@ -169,17 +320,60 @@ export default function LearningSnapshotPage() {
                   <Brain className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-bold text-foreground">Learning Snapshot</h1>
+                  <h1 className="text-4xl font-bold text-foreground">{t('parentLearningSnapshot.title')}</h1>
                   <p className="text-muted-foreground">
-                    Complete learning profile and insights
+                    {student ? `${student.name}'s Learning Profile` : t('parentLearningSnapshot.description')}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="w-4 h-4" />
-                <span>Last updated: {new Date(assessmentResult.calculated_at).toLocaleDateString()}</span>
-              </div>
+              {assessmentResult && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4" />
+                  <span>{t('parentLearningSnapshot.lastUpdated')}: {new Date(assessmentResult.calculated_at).toLocaleDateString()}</span>
+                </div>
+              )}
             </div>
+
+            {/* Student Basic Info */}
+            {student && (
+              <Card className="bg-gradient-to-br from-purple-50/30 to-pink-50/30 border-purple-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <User className="w-4 h-4 text-purple-600" />
+                    {t('parentLearningSnapshot.studentInfo')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    {student.class_name && (
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">{t('parentLearningSnapshot.class')}:</span>
+                        <span className="font-medium">{student.class_name}</span>
+                      </div>
+                    )}
+                    {(student.primary_category || student.secondary_category) && (
+                      <div className="flex items-center gap-2">
+                        <Brain className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">{t('parentLearningSnapshot.learningCategories')}:</span>
+                        <div className="flex gap-1">
+                          {student.primary_category && (
+                            <Badge variant="secondary" className="text-xs">
+                              {formatCategoryName(student.primary_category)}
+                            </Badge>
+                          )}
+                          {student.secondary_category && (
+                            <Badge variant="secondary" className="text-xs">
+                              {formatCategoryName(student.secondary_category)}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Overall Summary */}
             <Card className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 border-purple-200">
@@ -380,15 +574,9 @@ export default function LearningSnapshotPage() {
             {/* Actions */}
             <div className="flex gap-4">
               <Button
-                variant="outline"
-                onClick={() => router.push(`/parent/cognitive-assessment/${studentId}`)}
-              >
-                Retake Assessment
-              </Button>
-              <Button
                 onClick={() => router.push('/parent-dashboard')}
               >
-                Back to Dashboard
+                {t('parentLearningSnapshot.backToDashboard')}
               </Button>
             </div>
           </div>

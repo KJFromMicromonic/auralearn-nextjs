@@ -665,7 +665,21 @@
     "browseActivities": "Browse Daily Activities",
     "browseActivitiesLink": "Browse Activities",
     "retakeAssessment": "Retake Learning Snapshot",
-    "backToDashboard": "Back to Dashboard"
+    "backToDashboard": "Back to Dashboard",
+    "selectChild": "Select a child to view their learning snapshot",
+    "selectChildDescription": "Choose which child's learning profile you'd like to view",
+    "viewSnapshot": "View Learning Snapshot",
+    "aboutSnapshot": "About Learning Snapshots",
+    "snapshotDescription": "Learning Snapshots provide a comprehensive view of your child's cognitive profile, including their strengths, learning preferences, and areas where they may need additional support. This information helps you understand how your child learns best and how to support their growth.",
+    "selectStudent": "Please select a child first",
+    "studentInfo": "Student Information",
+    "studentName": "Student Name",
+    "class": "Class",
+    "lastUpdated": "Last updated",
+    "detailedProfilePending": "Detailed Profile Pending",
+    "detailedProfileDescription": "A more detailed learning profile will be available after assessment completion",
+    "detailedProfileInfo": "Your child's basic learning profile is shown above. A more comprehensive profile with detailed insights, domain scores, and personalized recommendations will be available once the learning assessment is completed.",
+    "profileSummary": "Profile Summary"
   },
   "parentCognitiveAssessment": {
     "title": "Learning Snapshot",

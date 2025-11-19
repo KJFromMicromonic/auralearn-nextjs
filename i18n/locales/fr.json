@@ -665,7 +665,21 @@
     "browseActivities": "Parcourir les Activités Quotidiennes",
     "browseActivitiesLink": "Parcourir les Activités",
     "retakeAssessment": "Repasser l'Évaluation",
-    "backToDashboard": "Retour au Tableau de Bord"
+    "backToDashboard": "Retour au Tableau de Bord",
+    "selectChild": "Sélectionnez un enfant pour voir son aperçu d'apprentissage",
+    "selectChildDescription": "Choisissez le profil d'apprentissage de l'enfant que vous souhaitez consulter",
+    "viewSnapshot": "Voir l'Aperçu d'Apprentissage",
+    "aboutSnapshot": "À propos des Aperçus d'Apprentissage",
+    "snapshotDescription": "Les Aperçus d'Apprentissage offrent une vue complète du profil cognitif de votre enfant, y compris ses forces, ses préférences d'apprentissage et les domaines où il peut avoir besoin d'un soutien supplémentaire. Ces informations vous aident à comprendre comment votre enfant apprend le mieux et comment soutenir sa croissance.",
+    "selectStudent": "Veuillez d'abord sélectionner un enfant",
+    "studentInfo": "Informations sur l'Élève",
+    "studentName": "Nom de l'Élève",
+    "class": "Classe",
+    "lastUpdated": "Dernière mise à jour",
+    "detailedProfilePending": "Profil Détaillé en Attente",
+    "detailedProfileDescription": "Un profil d'apprentissage plus détaillé sera disponible après la complétion de l'évaluation",
+    "detailedProfileInfo": "Le profil d'apprentissage de base de votre enfant est affiché ci-dessus. Un profil plus complet avec des informations détaillées, des scores de domaines et des recommandations personnalisées sera disponible une fois l'évaluation d'apprentissage terminée.",
+    "profileSummary": "Résumé du Profil"
   },
   "parentCognitiveAssessment": {
     "title": "Évaluation Cognitive",
