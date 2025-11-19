@@ -41,23 +41,53 @@ function AuthCallbackContent() {
             unsafeMetadata: { ...clerkUser.unsafeMetadata, role },
           });
 
-          const { data: existingUser } = await supabase
+          // First, try to find user by clerk_id
+          let { data: existingUser } = await supabase
             .from('users')
             .select('*')
             .eq('clerk_id', clerkUser.id)
             .maybeSingle();
 
-          if (existingUser) {
-            await supabase
+          // If not found by clerk_id, try to find by email (for migrated users)
+          if (!existingUser && clerkUser.primaryEmailAddress?.emailAddress) {
+            const { data: userByEmail } = await supabase
               .from('users')
-              .update({ role })
-              .eq('clerk_id', clerkUser.id);
+              .select('*')
+              .eq('email', clerkUser.primaryEmailAddress.emailAddress)
+              .maybeSingle();
+            
+            if (userByEmail) {
+              // Update the existing user with the new clerk_id
+              const { data: updatedUser } = await supabase
+                .from('users')
+                .update({ 
+                  clerk_id: clerkUser.id,
+                  role // Update role if different
+                })
+                .eq('id', userByEmail.id)
+                .select()
+                .single();
+              
+              existingUser = updatedUser || userByEmail;
+            }
+          }
+
+          if (existingUser) {
+            // Only update role if it's different, preserve all other fields (especially onboarding_completed)
+            if (existingUser.role !== role) {
+              await supabase
+                .from('users')
+                .update({ role })
+                .eq('clerk_id', clerkUser.id);
+            }
           } else {
+            // Create new user - onboarding_completed defaults to false/null
             await supabase.from('users').insert({
               clerk_id: clerkUser.id,
               email: clerkUser.primaryEmailAddress?.emailAddress,
               role,
               full_name: clerkUser.fullName || null,
+              onboarding_completed: false, // Explicitly set to false for new users
             });
           }
 
@@ -88,14 +118,45 @@ function AuthCallbackContent() {
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // Fetch the latest user record to determine onboarding status
-        const { data: latestUser, error: latestUserError } = await supabase
+        // Try by clerk_id first, then by email as fallback (for migrated users)
+        let { data: latestUser, error: latestUserError } = await supabase
           .from('users')
           .select('*')
           .eq('clerk_id', clerkUser.id)
           .maybeSingle();
 
-        if (latestUserError) {
+        // If not found by clerk_id, try by email (for users migrated from dev)
+        if (!latestUser && clerkUser.primaryEmailAddress?.emailAddress) {
+          const { data: userByEmail } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', clerkUser.primaryEmailAddress.emailAddress)
+            .maybeSingle();
+          
+          if (userByEmail) {
+            latestUser = userByEmail;
+            // Update the clerk_id to match the current Clerk instance
+            await supabase
+              .from('users')
+              .update({ clerk_id: clerkUser.id })
+              .eq('id', userByEmail.id);
+          }
+        }
+
+        if (latestUserError && !latestUser) {
           console.error('Error fetching latest user profile:', latestUserError);
+        }
+
+        // Log for debugging migration issues
+        if (latestUser) {
+          console.log('User profile found:', {
+            clerk_id: latestUser.clerk_id,
+            email: latestUser.email,
+            role: latestUser.role,
+            onboarding_completed: latestUser.onboarding_completed,
+          });
+        } else {
+          console.warn('No user profile found in Supabase for Clerk user:', clerkUser.id);
         }
 
         const onboardingCompleted = Boolean(latestUser?.onboarding_completed);
