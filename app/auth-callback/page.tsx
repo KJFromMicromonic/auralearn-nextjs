@@ -87,23 +87,26 @@ function AuthCallbackContent() {
         // Small delay to ensure context updates propagate
         await new Promise(resolve => setTimeout(resolve, 500));
 
+        // Fetch the latest user record to determine onboarding status
+        const { data: latestUser, error: latestUserError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('clerk_id', clerkUser.id)
+          .maybeSingle();
+
+        if (latestUserError) {
+          console.error('Error fetching latest user profile:', latestUserError);
+        }
+
+        const onboardingCompleted = Boolean(latestUser?.onboarding_completed);
+
         setHasChecked(true);
 
-        // Redirect based on role
+        // Redirect based on role and onboarding completion
         if (finalRole === 'teacher') {
-          // Check if teacher has completed onboarding
-          if (!user?.onboarding_completed) {
-            router.replace('/teacher-onboarding');
-          } else {
-            router.replace('/dashboard');
-          }
+          router.replace(onboardingCompleted ? '/dashboard' : '/teacher-onboarding');
         } else if (finalRole === 'parent') {
-          // Check if parent has completed onboarding
-          if (!user?.onboarding_completed) {
-            router.replace('/parent-onboarding');
-          } else {
-            router.replace('/parent-dashboard');
-          }
+          router.replace(onboardingCompleted ? '/parent-dashboard' : '/parent-onboarding');
         }
       } catch (error) {
         console.error('Error in auth callback:', error);
