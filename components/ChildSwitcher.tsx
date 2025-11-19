@@ -61,8 +61,12 @@ export default function ChildSwitcher({
           </div>
           <div className="flex-1">
             <h3 className="text-xl font-bold text-foreground">{student.name}</h3>
-            {student.class_name && (
-              <p className="text-sm text-muted-foreground">Class: {student.class_name}</p>
+            {(student.class_school_name || student.class_name || student.class_grade_level) && (
+              <p className="text-sm text-muted-foreground">
+                {[student.class_school_name || student.class_name, student.class_grade_level]
+                  .filter(Boolean)
+                  .join(' • ')}
+              </p>
             )}
             <div className="mt-2">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
@@ -111,8 +115,12 @@ export default function ChildSwitcher({
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-foreground">{student.name}</h3>
-                  {student.class_name && (
-                    <p className="text-sm text-muted-foreground">Class: {student.class_name}</p>
+                  {(student.class_school_name || student.class_name || student.class_grade_level) && (
+                    <p className="text-sm text-muted-foreground">
+                      {[student.class_school_name || student.class_name, student.class_grade_level]
+                        .filter(Boolean)
+                        .join(' • ')}
+                    </p>
                   )}
                   <div className="mt-2">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">

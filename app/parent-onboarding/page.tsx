@@ -2,32 +2,40 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, GradeLevelType } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, Loader2, Plus, X, BookOpen, Sparkles } from 'lucide-react';
+import { Heart, Loader2, Plus, X, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { Badge } from '@/components/ui/badge';
+import { addChildToParentProfile } from '@/services/parent-child-service';
 
 interface ChildForm {
   name: string;
   gradeLevel: string;
+  schoolName: string;
+  classLabel?: string;
+  schoolLocation?: string;
 }
 
 export default function ParentOnboardingPage() {
   const router = useRouter();
   const { user, refreshUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [children, setChildren] = useState<ChildForm[]>([{ name: '', gradeLevel: 'CM1' }]);
-  const [schoolName, setSchoolName] = useState('');
-  const [teacherEmail, setTeacherEmail] = useState('');
+  const createEmptyChild = (): ChildForm => ({
+    name: '',
+    gradeLevel: 'CM1',
+    schoolName: '',
+    classLabel: '',
+    schoolLocation: '',
+  });
+  const [children, setChildren] = useState<ChildForm[]>([createEmptyChild()]);
 
   const addChild = () => {
-    setChildren([...children, { name: '', gradeLevel: 'CM1' }]);
+    setChildren([...children, createEmptyChild()]);
   };
 
   const removeChild = (index: number) => {
@@ -50,62 +58,45 @@ export default function ParentOnboardingPage() {
       return;
     }
 
-    // Validate at least one child with a name
-    const validChildren = children.filter(c => c.name.trim());
+    if (!user.email || !user.id) {
+      toast.error('Missing parent account information.');
+      return;
+    }
+
+    // Validate at least one child with name and school
+    const validChildren = children.filter(c => c.name.trim() && c.schoolName.trim());
     if (validChildren.length === 0) {
-      toast.error('Please add at least one child');
+      toast.error('Please add at least one child with a school name');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Create a "Home" class for this parent
-      // Note: We use user_id field to create parent-managed classes
-      const { data: homeClass, error: classError } = await supabase
-        .from('classes')
-        .insert({
-          name: `${user.full_name || 'Home'}'s Learning Space`,
-          user_id: user.id, // Using parent's user ID to create parent-managed classes
-          grade_level: validChildren[0].gradeLevel,
-          subject: 'home_learning',
-        })
-        .select()
-        .single();
+      await Promise.all(
+        validChildren.map(child =>
+          addChildToParentProfile({
+            userId: user.id,
+            parentEmail: user.email!,
+            child: {
+              name: child.name.trim(),
+              gradeLevel: child.gradeLevel as GradeLevelType,
+              schoolName: child.schoolName.trim(),
+              classLabel: child.classLabel?.trim() || undefined,
+              schoolLocation: child.schoolLocation?.trim() || undefined,
+            },
+          })
+        )
+      );
 
-      if (classError) {
-        console.error('Error creating home class:', classError);
-        toast.error('Failed to create learning space');
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Create students for each child
-      const studentsToCreate = validChildren.map(child => ({
-        class_id: homeClass.id,
-        name: child.name.trim(),
-        parent_email: user.email,
-        // Store grade level in a way we can access it later
-        // Note: This might require a schema update, but for now we'll use the class grade_level
-      }));
-
-      const { error: studentsError } = await supabase
-        .from('students')
-        .insert(studentsToCreate);
-
-      if (studentsError) {
-        console.error('Error creating students:', studentsError);
-        toast.error('Failed to add children');
-        setIsSubmitting(false);
-        return;
-      }
+      const primarySchool = validChildren[0]?.schoolName?.trim() || null;
 
       // Update user profile with onboarding completion
       const { error: updateError } = await supabase
         .from('users')
         .update({
           onboarding_completed: true,
-          school_name: schoolName.trim() || null,
+          school_name: primarySchool,
         })
         .eq('clerk_id', user.clerk_id);
 
@@ -124,6 +115,7 @@ export default function ParentOnboardingPage() {
     } catch (error) {
       console.error('Error in parent onboarding:', error);
       toast.error('Something went wrong. Please try again.');
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -162,7 +154,7 @@ export default function ParentOnboardingPage() {
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Add one or more children to get personalized learning support for each child.
+                  Add one or more children to get personalized learning support for each child. Each child can attend a different school.
                 </p>
 
                 <div className="space-y-4">
@@ -204,6 +196,44 @@ export default function ParentOnboardingPage() {
                                 <option value="3e">3ème</option>
                               </select>
                             </div>
+                            <div className="space-y-2">
+                              <Label htmlFor={`child-school-${index}`}>
+                                School Name <span className="text-destructive">*</span>
+                              </Label>
+                              <Input
+                                id={`child-school-${index}`}
+                                type="text"
+                                placeholder="e.g., École Primaire de Lyon"
+                                value={child.schoolName}
+                                onChange={(e) => updateChild(index, 'schoolName', e.target.value)}
+                                className="h-12"
+                                required
+                              />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor={`child-class-${index}`}>Class / Teacher (optional)</Label>
+                                <Input
+                                  id={`child-class-${index}`}
+                                  type="text"
+                                  placeholder="e.g., Mme Bernard - CM2B"
+                                  value={child.classLabel}
+                                  onChange={(e) => updateChild(index, 'classLabel', e.target.value)}
+                                  className="h-12"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor={`child-location-${index}`}>School City (optional)</Label>
+                                <Input
+                                  id={`child-location-${index}`}
+                                  type="text"
+                                  placeholder="e.g., Marseille"
+                                  value={child.schoolLocation}
+                                  onChange={(e) => updateChild(index, 'schoolLocation', e.target.value)}
+                                  className="h-12"
+                                />
+                              </div>
+                            </div>
                           </div>
                           {children.length > 1 && (
                             <Button
@@ -223,55 +253,12 @@ export default function ParentOnboardingPage() {
                 </div>
               </div>
 
-              <div className="border-t pt-6 space-y-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                  <Sparkles className="w-4 h-4" />
-                  Optional: Link to School
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  You can link to your child's school or teacher later. This helps us provide more personalized recommendations.
-                </p>
-
-                {/* School Name (Optional) */}
-                <div className="space-y-2">
-                  <Label htmlFor="schoolName">
-                    School Name <span className="text-muted-foreground text-sm">(Optional)</span>
-                  </Label>
-                  <Input
-                    id="schoolName"
-                    type="text"
-                    placeholder="e.g., École Primaire de Paris"
-                    value={schoolName}
-                    onChange={(e) => setSchoolName(e.target.value)}
-                    className="h-12"
-                  />
-                </div>
-
-                {/* Teacher Email (Optional) */}
-                <div className="space-y-2">
-                  <Label htmlFor="teacherEmail">
-                    Teacher Email <span className="text-muted-foreground text-sm">(Optional)</span>
-                  </Label>
-                  <Input
-                    id="teacherEmail"
-                    type="email"
-                    placeholder="teacher@school.com"
-                    value={teacherEmail}
-                    onChange={(e) => setTeacherEmail(e.target.value)}
-                    className="h-12"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    If your child's teacher uses LearnAura, enter their email to link accounts.
-                  </p>
-                </div>
-              </div>
-
               {/* Submit Button */}
               <div className="pt-4">
                 <Button
                   type="submit"
                   className="w-full h-12 text-base bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-90"
-                  disabled={isSubmitting || !children.some(c => c.name.trim())}
+                  disabled={isSubmitting || !children.some(c => c.name.trim() && c.schoolName.trim())}
                 >
                   {isSubmitting ? (
                     <>

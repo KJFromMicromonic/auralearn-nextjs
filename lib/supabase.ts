@@ -113,9 +113,12 @@ export interface Profile {
 export interface Class {
   id: string;
   teacher_id: string;
+  user_id?: string;
   name: string;
   grade_level?: string;
   subject?: string;
+  school_name?: string;
+  school_location?: string;
   created_at: string;
   updated_at: string;
 }

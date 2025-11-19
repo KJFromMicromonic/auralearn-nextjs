@@ -378,9 +378,12 @@ export default function ParentActivitiesPage() {
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold text-foreground mb-2">No Linked Students</h3>
-                  <p className="text-sm text-muted-foreground text-center max-w-md">
-                    Your email ({user?.email}) is not linked to any students yet.
+                  <p className="text-sm text-muted-foreground text-center max-w-md mb-4">
+                    Your email ({user?.email}) is not linked to any children yet. Visit your dashboard to add a child.
                   </p>
+                  <Button onClick={() => router.push('/parent-dashboard?addChild=1')}>
+                    Add a Child
+                  </Button>
                 </CardContent>
               </Card>
             )}

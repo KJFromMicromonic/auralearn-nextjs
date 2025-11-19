@@ -3,18 +3,19 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Home, 
-  Brain, 
-  BookOpen, 
-  Heart, 
-  CheckCircle2, 
-  Clock, 
+import {
+  Home,
+  Brain,
+  BookOpen,
+  Heart,
+  CheckCircle2,
+  Clock,
   TrendingUp,
   AlertCircle,
   Sparkles,
   ArrowRight,
-  Target
+  Target,
+  Plus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getStudentsForParent, StudentWithClass } from "@/services/student-service";
@@ -22,21 +23,67 @@ import { getParentDashboardData, ParentDashboardData } from "@/services/parent-d
 import { getActivityStats } from "@/services/parent-activity-service";
 import ChildSwitcher from "@/components/ChildSwitcher";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GradeLevelType } from "@/contexts/AuthContext";
+import { addChildToParentProfile } from "@/services/parent-child-service";
 
 export default function ParentDashboardPage() {
   const { user, isParent } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
   const [students, setStudents] = useState<StudentWithClass[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<ParentDashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddChildOpen, setIsAddChildOpen] = useState(false);
+  const [isSavingChild, setIsSavingChild] = useState(false);
+  const [newChildName, setNewChildName] = useState("");
+  const [newChildSchool, setNewChildSchool] = useState("");
+  const [newChildClassLabel, setNewChildClassLabel] = useState("");
+  const [newChildLocation, setNewChildLocation] = useState("");
+  const [newChildGrade, setNewChildGrade] = useState<GradeLevelType>("CM1");
+
+  const gradeLevels: GradeLevelType[] = ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'];
+
+  const resetAddChildForm = () => {
+    setNewChildName("");
+    setNewChildSchool("");
+    setNewChildClassLabel("");
+    setNewChildLocation("");
+    setNewChildGrade("CM1");
+  };
+
+  const handleCloseAddChild = (nextOpen: boolean) => {
+    setIsAddChildOpen(nextOpen);
+    if (!nextOpen) {
+      resetAddChildForm();
+      if (searchParams?.get('addChild')) {
+        router.replace('/parent-dashboard');
+      }
+    }
+  };
 
   // Fetch linked students for parent
   useEffect(() => {
@@ -66,6 +113,13 @@ export default function ParentDashboardPage() {
 
     loadStudents();
   }, [user?.email, toast]);
+
+  // Automatically open the Add Child dialog when ?addChild=1
+  useEffect(() => {
+    if (searchParams?.get('addChild') === '1') {
+      setIsAddChildOpen(true);
+    }
+  }, [searchParams]);
 
   // Load dashboard data when student is selected
   useEffect(() => {
@@ -108,6 +162,61 @@ export default function ParentDashboardPage() {
 
   const selectedStudent = students.find(s => s.id === selectedStudentId);
 
+  const handleAddChild = async () => {
+    if (!user?.id || !user.email) {
+      toast({
+        title: t('common.error'),
+        description: 'You must be signed in to add a child.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!newChildName.trim() || !newChildSchool.trim()) {
+      toast({
+        title: t('common.error'),
+        description: "Please enter your child's name and school.",
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setIsSavingChild(true);
+      const newStudent = await addChildToParentProfile({
+        userId: user.id,
+        parentEmail: user.email,
+        child: {
+          name: newChildName,
+          gradeLevel: newChildGrade,
+          schoolName: newChildSchool,
+          classLabel: newChildClassLabel || undefined,
+          schoolLocation: newChildLocation || undefined,
+        },
+      });
+
+      setStudents(prev => {
+        const updated = [...prev, newStudent];
+        return updated.sort((a, b) => a.name.localeCompare(b.name));
+      });
+      setSelectedStudentId(newStudent.id);
+      toast({
+        title: t('common.success'),
+        description: t('parentDashboard.childAdded', { name: newStudent.name }),
+      });
+      handleCloseAddChild(false);
+    } catch (error) {
+      console.error('Failed to add child', error);
+      toast({
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : 'Unable to add child right now.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSavingChild(false);
+    }
+  };
+
   if (isLoading && !dashboardData) {
     return (
       <ProtectedRoute requireRole="parent">
@@ -130,16 +239,22 @@ export default function ParentDashboardPage() {
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Header */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
-                  <Home className="w-6 h-6 text-white" />
+              <div className="flex flex-wrap items-center gap-4 justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+                    <Home className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-4xl font-bold text-foreground">{t('parentDashboard.title')}</h1>
+                    <p className="text-muted-foreground">
+                      {t('parentDashboard.welcome', { name: user?.full_name || t('auth.parent') })} {t('parentDashboard.overview')}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-4xl font-bold text-foreground">{t('parentDashboard.title')}</h1>
-                  <p className="text-muted-foreground">
-                    {t('parentDashboard.welcome', { name: user?.full_name || t('auth.parent') })} {t('parentDashboard.overview')}
-                  </p>
-                </div>
+                <Button onClick={() => setIsAddChildOpen(true)} className="flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  {t('parentDashboard.addChildButton')}
+                </Button>
               </div>
             </div>
 
@@ -152,6 +267,10 @@ export default function ParentDashboardPage() {
                   <p className="text-sm text-muted-foreground text-center max-w-md mb-4">
                     {t('parentDashboard.noLinkedDescription', { email: user?.email || '' })}
                   </p>
+                  <Button onClick={() => setIsAddChildOpen(true)} className="flex items-center gap-2">
+                    <Plus className="w-4 h-4" />
+                    {t('parentDashboard.linkChildButton')}
+                  </Button>
                 </CardContent>
               </Card>
             )}
@@ -398,6 +517,72 @@ export default function ParentDashboardPage() {
             )}
           </div>
         </div>
+        <Dialog open={isAddChildOpen} onOpenChange={handleCloseAddChild}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('parentDashboard.addChildDialogTitle')}</DialogTitle>
+              <DialogDescription>
+                {t('parentDashboard.addChildDialogDescription')}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="child-name">{t('parentDashboard.childNameLabel')}</Label>
+                <Input
+                  id="child-name"
+                  value={newChildName}
+                  onChange={(e) => setNewChildName(e.target.value)}
+                  placeholder={t('parentDashboard.childNamePlaceholder')}
+                />
+              </div>
+              <div>
+                <Label htmlFor="child-school">{t('parentDashboard.schoolNameLabel')}</Label>
+                <Input
+                  id="child-school"
+                  value={newChildSchool}
+                  onChange={(e) => setNewChildSchool(e.target.value)}
+                  placeholder={t('parentDashboard.schoolNamePlaceholder')}
+                />
+              </div>
+              <div>
+                <Label htmlFor="child-class">{t('parentDashboard.classLabel')}</Label>
+                <Input
+                  id="child-class"
+                  value={newChildClassLabel}
+                  onChange={(e) => setNewChildClassLabel(e.target.value)}
+                  placeholder={t('parentDashboard.classLabelPlaceholder')}
+                />
+              </div>
+              <div>
+                <Label htmlFor="child-location">{t('parentDashboard.schoolCityLabel')}</Label>
+                <Input
+                  id="child-location"
+                  value={newChildLocation}
+                  onChange={(e) => setNewChildLocation(e.target.value)}
+                  placeholder={t('parentDashboard.schoolCityPlaceholder')}
+                />
+              </div>
+              <div>
+                <Label>{t('parentDashboard.gradeLevelLabel')}</Label>
+                <Select value={newChildGrade} onValueChange={(value: GradeLevelType) => setNewChildGrade(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('parentDashboard.gradeLevelLabel')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {gradeLevels.map(level => (
+                      <SelectItem key={level} value={level}>
+                        {level}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={handleAddChild} disabled={isSavingChild} className="w-full">
+                {isSavingChild ? t('parentDashboard.addingChild') : t('parentDashboard.addChildSubmit')}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </Layout>
     </ProtectedRoute>
   );

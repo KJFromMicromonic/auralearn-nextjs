@@ -24,6 +24,7 @@ AuraLearn brings clarity to classrooms and homes by revealing how each child lea
 - Simple 10-minute activities to reinforce learning  
 - Personalized home-support tips  
 - Reduced stress and better parent–child learning alignment  
+- Self-serve child management so parents can add children from different schools  
 
 Our mission is to make learning progress **visible**, **actionable**, and **supportive** for every child.
 
@@ -96,6 +97,9 @@ Although AuraLearn focuses on *how* a child learns, it also remains aligned with
 - Strategies support grade-level progress  
 - Activities follow CM1/CM2/6e expectations  
 - Teachers receive guidance they can trust  
+
+## **6. Parent Child Management**
+Parents can now add or link children directly from the dashboard without waiting for a teacher. Each child entry captures the school name, optional class/teacher details, and even supports different schools per child. Use the “Add Child” button on `/parent-dashboard` (or the deep-link `/parent-dashboard?addChild=1`) to open the guided flow.
 
 ---
 
@@ -265,6 +269,7 @@ The original pages are in `pages-src/` directory. They need to be:
 - `MIGRATION_NOTES.md` - Detailed migration notes
 - `CONVERT_PAGES.md` - Guide for converting pages
 - Original project docs in parent directory
+- `supabase-parent-multi-school.sql` - Adds school metadata columns required for parent-managed multi-school children
 
 ## 🛠️ Scripts
 

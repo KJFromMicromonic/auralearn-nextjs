@@ -123,10 +123,10 @@ export default function LearningSnapshotIndexPage() {
                     {t('parentDashboard.noLinkedDescription', { email: user?.email || '' })}
                   </p>
                   <Button
-                    onClick={() => router.push('/parent-dashboard')}
+                    onClick={() => router.push('/parent-dashboard?addChild=1')}
                     variant="outline"
                   >
-                    {t('parentLearningSnapshot.backToDashboard')}
+                    {t('parentDashboard.addChildButton')}
                   </Button>
                 </CardContent>
               </Card>

@@ -55,7 +55,7 @@ export default function RoleBasedSidebar() {
               <Lightbulb className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">{t('sidebar.learnAura')}</h1>
+              <h1 className="text-xl font-bold text-foreground">{t('AuraLearn')}</h1>
               <p className="text-xs text-muted-foreground">{t('sidebar.intelligenceSystem')}</p>
             </div>
           </div>

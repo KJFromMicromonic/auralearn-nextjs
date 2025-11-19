@@ -19,8 +19,42 @@ export interface StudentData {
 export interface StudentWithClass extends StudentData {
   id: string;
   class_name?: string;
+  class_grade_level?: string;
+  class_school_name?: string;
+  class_school_location?: string;
+  class_subject?: string;
   created_at: string;
   updated_at: string;
+}
+
+interface StudentRecord extends StudentData {
+  classes?: {
+    name?: string | null;
+    grade_level?: string | null;
+    school_name?: string | null;
+    school_location?: string | null;
+    subject?: string | null;
+  } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Map a raw Supabase student record with nested class data into StudentWithClass.
+ *
+ * @param record - Raw record including nested class metadata.
+ * @returns Normalized StudentWithClass object.
+ */
+export function mapStudentWithClass(record: StudentRecord): StudentWithClass {
+  const { classes, ...student } = record;
+  return {
+    ...(student as StudentWithClass),
+    class_name: classes?.name ?? undefined,
+    class_grade_level: classes?.grade_level ?? undefined,
+    class_school_name: classes?.school_name ?? undefined,
+    class_school_location: classes?.school_location ?? undefined,
+    class_subject: classes?.subject ?? undefined,
+  };
 }
 
 /**
@@ -31,7 +65,13 @@ export async function getStudentsByClass(classId: string): Promise<StudentWithCl
     .from('students')
     .select(`
       *,
-      classes(name)
+      classes(
+        name,
+        grade_level,
+        school_name,
+        school_location,
+        subject
+      )
     `)
     .eq('class_id', classId)
     .order('name');
@@ -41,10 +81,7 @@ export async function getStudentsByClass(classId: string): Promise<StudentWithCl
     throw error;
   }
 
-  return data.map(s => ({
-    ...s,
-    class_name: s.classes?.name,
-  })) as StudentWithClass[];
+  return (data || []).map(mapStudentWithClass);
 }
 
 /**
@@ -55,7 +92,13 @@ export async function getStudentsForParent(parentEmail: string): Promise<Student
     .from('students')
     .select(`
       *,
-      classes(name)
+      classes(
+        name,
+        grade_level,
+        school_name,
+        school_location,
+        subject
+      )
     `)
     .or(`parent_email.eq.${parentEmail},parent_email_2.eq.${parentEmail}`)
     .order('name');
@@ -65,10 +108,7 @@ export async function getStudentsForParent(parentEmail: string): Promise<Student
     throw error;
   }
 
-  return data.map(s => ({
-    ...s,
-    class_name: s.classes?.name,
-  })) as StudentWithClass[];
+  return (data || []).map(mapStudentWithClass);
 }
 
 /**

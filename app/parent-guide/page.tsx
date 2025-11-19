@@ -132,9 +132,12 @@ export default function ParentGuidePage() {
                   <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold text-foreground mb-2">No Linked Students</h3>
                   <p className="text-sm text-muted-foreground text-center max-w-md">
-                    Your email ({user?.email}) is not linked to any students yet. Please contact your child's teacher
-                    to have your email added to their student profile.
+                    Your email ({user?.email}) is not linked to any children yet. Use the button below to add your child
+                    and unlock personalized guidance.
                   </p>
+                  <Button onClick={() => router.push('/parent-dashboard?addChild=1')} className="mt-4">
+                    Add a Child
+                  </Button>
                 </CardContent>
               </Card>
             )}
