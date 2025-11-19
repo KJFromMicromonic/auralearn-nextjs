@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,7 +47,7 @@ import {
 import { GradeLevelType } from "@/contexts/AuthContext";
 import { addChildToParentProfile } from "@/services/parent-child-service";
 
-export default function ParentDashboardPage() {
+function ParentDashboardContent() {
   const { user, isParent } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -585,6 +585,27 @@ export default function ParentDashboardPage() {
         </Dialog>
       </Layout>
     </ProtectedRoute>
+  );
+}
+
+export default function ParentDashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <ProtectedRoute requireRole="parent">
+          <Layout>
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading dashboard...</p>
+              </div>
+            </div>
+          </Layout>
+        </ProtectedRoute>
+      }
+    >
+      <ParentDashboardContent />
+    </Suspense>
   );
 }
 
