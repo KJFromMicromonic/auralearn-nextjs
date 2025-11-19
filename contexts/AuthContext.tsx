@@ -118,7 +118,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // User doesn't exist, determine role based on metadata or default to teacher
-      const role = (clerkUser.publicMetadata?.role as UserRole) || 'teacher';
+      const metadataRole = (clerkUser.publicMetadata?.role as UserRole | undefined) 
+        || (clerkUser.unsafeMetadata?.role as UserRole | undefined);
+      const role = metadataRole || 'teacher';
 
       // Create new user in Supabase
       const { data: newUser, error: createError } = await supabase

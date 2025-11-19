@@ -1,43 +1,95 @@
 'use client';
 
-import { SignIn as ClerkSignIn } from '@clerk/clerk-react';
+import Link from 'next/link';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { GraduationCap, Heart } from 'lucide-react';
 
+/**
+ * Presents a role selector before any Clerk interaction so we always
+ * know whether the user intends to authenticate as a teacher or parent.
+ *
+ * @returns JSX element that links to the role-specific sign-in flows
+ */
 export default function SignInPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pastel-mint/20 via-pastel-sky/20 to-pastel-lavender/20 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-primary to-info flex items-center justify-center">
-            <svg
-              className="w-10 h-10 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-              />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome to LearnAura</h1>
-          <p className="text-muted-foreground">Sign in to your account</p>
+      <div className="w-full max-w-4xl">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-foreground mb-4">Sign in to LearnAura</h1>
+          <p className="text-lg text-muted-foreground">
+            Choose your experience to jump straight into the right dashboard.
+          </p>
         </div>
 
-        <ClerkSignIn
-          appearance={{
-            elements: {
-              rootBox: 'mx-auto',
-              card: 'bg-card shadow-xl',
-            },
-          }}
-          afterSignInUrl="/auth-callback"
-          signUpUrl="/sign-up"
-        />
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="hover:shadow-xl transition-all duration-300 border-2 hover:border-primary">
+            <CardHeader className="text-center">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                <GraduationCap className="w-12 h-12 text-white" />
+              </div>
+              <CardTitle className="text-2xl">I&apos;m a Teacher</CardTitle>
+              <CardDescription className="text-base">
+                Manage classes, run assessments, and generate instant strategies.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 mb-6 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">✓</span>
+                  <span>Create and manage multiple classes</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">✓</span>
+                  <span>Assess students and track progress</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">✓</span>
+                  <span>Generate AI-powered teaching guides</span>
+                </li>
+              </ul>
+              <Link href="/signin/teacher">
+                <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90" size="lg">
+                  Continue as Teacher
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-xl transition-all duration-300 border-2 hover:border-pink-500">
+            <CardHeader className="text-center">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+                <Heart className="w-12 h-12 text-white" />
+              </div>
+              <CardTitle className="text-2xl">I&apos;m a Parent</CardTitle>
+              <CardDescription className="text-base">
+                Support your child with personalized insight and weekly actions.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 mb-6 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-pink-500">✓</span>
+                  <span>View your child&apos;s learning profile</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-pink-500">✓</span>
+                  <span>Get 10-minute home support strategies</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-pink-500">✓</span>
+                  <span>Stay aligned with teachers week to week</span>
+                </li>
+              </ul>
+              <Link href="/signin/parent">
+                <Button className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-90" size="lg">
+                  Continue as Parent
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
 }
-

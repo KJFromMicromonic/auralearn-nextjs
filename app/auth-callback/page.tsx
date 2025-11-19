@@ -31,41 +31,42 @@ function AuthCallbackContent() {
       // Not signed in - redirect to sign in
       if (!isSignedIn) {
         setHasChecked(true);
-        router.replace('/signin/teacher');
+        router.replace('/sign-in');
         return;
       }
 
       try {
-        // If role is provided in URL, set it in Clerk metadata
-        if (roleFromUrl && clerkUser.unsafeMetadata?.role !== roleFromUrl) {
+        const persistRole = async (role: 'teacher' | 'parent') => {
           await clerkUser.update({
-            unsafeMetadata: { ...clerkUser.unsafeMetadata, role: roleFromUrl }
+            unsafeMetadata: { ...clerkUser.unsafeMetadata, role },
           });
 
-          // Also sync to Supabase
           const { data: existingUser } = await supabase
             .from('users')
             .select('*')
             .eq('clerk_id', clerkUser.id)
-            .single();
+            .maybeSingle();
 
           if (existingUser) {
             await supabase
               .from('users')
-              .update({ role: roleFromUrl })
+              .update({ role })
               .eq('clerk_id', clerkUser.id);
           } else {
-            // Create user in Supabase if doesn't exist
             await supabase.from('users').insert({
               clerk_id: clerkUser.id,
               email: clerkUser.primaryEmailAddress?.emailAddress,
-              role: roleFromUrl,
+              role,
               full_name: clerkUser.fullName || null,
             });
           }
 
-          // Refresh our auth context
           await refreshUser();
+        };
+
+        // If role is provided in URL, set it everywhere
+        if (roleFromUrl && clerkUser.unsafeMetadata?.role !== roleFromUrl) {
+          await persistRole(roleFromUrl);
         }
 
         // Small delay to ensure sync is complete
@@ -73,11 +74,16 @@ function AuthCallbackContent() {
           setHasChecked(true);
 
           // Get role from URL parameter or from user metadata
-          const finalRole = roleFromUrl || (clerkUser.unsafeMetadata?.role as string) || user?.role;
+          const metadataRole = (clerkUser.unsafeMetadata?.role as 'teacher' | 'parent' | undefined)
+            || (clerkUser.publicMetadata?.role as 'teacher' | 'parent' | undefined);
+          const dbRole = user?.role as 'teacher' | 'parent' | undefined;
+          let finalRole: 'teacher' | 'parent' = roleFromUrl || metadataRole || dbRole || 'teacher';
 
-          if (!finalRole) {
-            router.replace('/select-role');
-            return;
+          if (!metadataRole && !dbRole && !roleFromUrl) {
+            // Ensure future loads have a role
+            persistRole(finalRole).catch((error) => {
+              console.error('Error persisting default role:', error);
+            });
           }
 
           // Redirect based on role

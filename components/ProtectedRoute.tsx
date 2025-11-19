@@ -27,7 +27,7 @@ export default function ProtectedRoute({ children, requireRole }: ProtectedRoute
     if (!isSignedIn) {
       router.push('/sign-in');
     } else if (isSignedIn && !user?.role) {
-      router.push('/select-role');
+      router.push('/auth-callback');
     } else if (isSignedIn && requireRole && user?.role !== requireRole) {
       // Wrong role - redirect to appropriate dashboard
       if (user.role === 'teacher') {

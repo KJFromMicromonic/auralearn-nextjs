@@ -43,6 +43,12 @@ We’re building this to scale beyond the hackathon, refining it with real schoo
 
 ---
 
+### 🔐 Role-Aware Authentication
+- Use `/sign-in` or `/sign-up` to pick between the parent and teacher experiences before hitting Clerk.
+- Teachers authenticate via `/signin/teacher` and land directly on `/dashboard` (or onboarding if needed).
+- Parents authenticate via `/signin/parent` and go straight to `/parent-dashboard` (or onboarding).
+- The legacy `/select-role` route now auto-redirects to `/sign-up`, removing the redundant post-login screen.
+
 # 🧠 Core Features
 
 ## **1. Learning Profile Assessment**

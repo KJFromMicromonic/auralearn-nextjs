@@ -96,7 +96,7 @@ export default function Home() {
             <div className="pt-2">
               <p className="text-sm text-muted-foreground">
                 {t('home.noAccount')}{" "}
-                <Link href="/select-role" className="text-primary font-medium hover:underline">
+                <Link href="/sign-up" className="text-primary font-medium hover:underline">
                   {t('home.signUpHere')}
                 </Link>
               </p>
