@@ -177,6 +177,13 @@ LIVEKIT_API_KEY=your_livekit_key
 LIVEKIT_API_SECRET=your_livekit_secret
 LIVEKIT_URL=your_livekit_url
 LIVEKIT_AGENT_NAME=AuraVoiceAgent
+
+# Clerk Migration Utilities (optional)
+CLERK_DEV_SECRET_KEY=your_dev_secret_key
+CLERK_DEV_API_BASE_URL=https://api.clerk.dev
+CLERK_DEV_EXPORT_OUTPUT_PATH=exports/clerk-dev-users.migration.json
+CLERK_DEV_EXPORT_RAW_OUTPUT_PATH=exports/clerk-dev-users.raw.json
+CLERK_DEV_EXPORT_PAGE_SIZE=100
 ```
 
 **Note**: In Next.js, client-side environment variables must be prefixed with `NEXT_PUBLIC_`. The `getEnvVar()` utility in `lib/utils.ts` handles both `VITE_` and `NEXT_PUBLIC_` prefixes for compatibility.
@@ -198,6 +205,25 @@ npm run dev
 ```
 
 All API routes are built into Next.js - no separate server needed! 🎉
+
+---
+
+## 🔐 Clerk User Migration (Dev → Prod)
+
+Use this workflow when you need to migrate every user from the Clerk development instance into production.
+
+1. **Set secrets** – ensure `.env` contains `CLERK_DEV_SECRET_KEY` (already added above). Optionally override the export destination or page size through the other `CLERK_DEV_*` variables.
+2. **Export dev users** – run the scripted export (requires Node 18+):
+   ```bash
+   npm run export:clerk:dev
+   ```
+   This command calls Clerk’s Management API, walks through all pages, and writes:
+   - `exports/clerk-dev-users.migration.json` → sanitized payload compatible with Clerk’s [migration-script](https://github.com/clerk/migration-script)
+   - `exports/clerk-dev-users.raw.json` → full snapshot of the API response for auditing/backups
+3. **Import into production** – clone the official migration script, drop `clerk-dev-users.migration.json` in its root as `users.json`, set `CLERK_SECRET_KEY` to your production key, and run `npm start`. Clerk enforces rate limits, so keep the default pacing or adjust via their script’s `DELAY_MS`.
+4. **Verify & clean up** – confirm users exist in the production dashboard, spot-check sign-ins, then securely delete the exported JSON files because they contain PII.
+
+> **Tip:** Users without any email address are skipped; review the console output for the `Skipping user ...` warnings and handle those accounts manually before rerunning the export.
 
 ## 📁 Project Structure
 

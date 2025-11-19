@@ -25,6 +25,9 @@
 *.pem
 README.md
 
+# export artifacts
+exports/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

@@ -2,6 +2,12 @@
 
 import { SignIn } from '@clerk/clerk-react';
 
+/**
+ * Presents the parent-focused Clerk sign-in form and routes successful
+ * authentication through the parent-specific auth callback.
+ *
+ * @returns JSX element with the parent sign-in interface
+ */
 export default function ParentSignInPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pastel-coral/20 via-pastel-mint/20 to-pastel-sky/20 flex items-center justify-center p-4">
@@ -33,6 +39,7 @@ export default function ParentSignInPage() {
               card: 'bg-card shadow-xl',
             },
           }}
+          afterSignInUrl="/auth-callback?role=parent"
           redirectUrl="/auth-callback?role=parent"
           signUpUrl="/signup/parent"
         />

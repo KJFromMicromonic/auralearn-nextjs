@@ -2,6 +2,14 @@
 
 import { SignIn } from '@clerk/clerk-react';
 
+/**
+ * Renders the Clerk sign-in experience tailored for teachers.
+ *
+ * Ensures that successful authentication redirects through the teacher-aware
+ * auth callback so the role makes it to the rest of the stack.
+ *
+ * @returns JSX element containing the teacher sign-in screen
+ */
 export default function TeacherSignInPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pastel-mint/20 via-pastel-sky/20 to-pastel-lavender/20 flex items-center justify-center p-4">
@@ -33,6 +41,7 @@ export default function TeacherSignInPage() {
               card: 'bg-card shadow-xl',
             },
           }}
+          afterSignInUrl="/auth-callback?role=teacher"
           redirectUrl="/auth-callback?role=teacher"
           signUpUrl="/signup/teacher"
         />
