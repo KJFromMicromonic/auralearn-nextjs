@@ -1,6 +1,142 @@
-# AuraLearn - Next.js
+# AuraLearn — Personalized Learning for Every Student  
+**Assess today. Teach better tomorrow.**
 
-This is the Next.js version of the AuraLearn application, migrated from Vite.js + React Router.
+AuraLearn is the personalized learning coach every child deserves. It helps parents and teachers understand how each child learns. Their pace, strengths, attention patterns, motivation type, and challenge tolerance. AuraLearn transforms these insights into simple, actionable strategies teachers can use immediately in the classroom and parents can apply at home.
+
+Everything is rooted in **learning science** and aligned with the **official French curriculum**, with our Beta focusing on **CM1, CM2, and 6e**.
+
+---
+
+## 🌟 What AuraLearn Does
+AuraLearn brings clarity to classrooms and homes by revealing how each child learns and offering guidance that adapts to their needs.
+
+### **For Teachers**
+- Instant learning profiles for each student  
+- Evidence-based teaching strategies tailored to each child  
+- Classroom-friendly differentiation guidance  
+- Weekly snapshots to understand learning patterns  
+- Academic alignment with the French national curriculum  
+- Support for mixed-level classrooms in CM1, CM2, and 6e  
+
+### **For Parents**
+- Clear explanations of how their child learns  
+- Weekly snapshots showing progress  
+- Simple 10-minute activities to reinforce learning  
+- Personalized home-support tips  
+- Reduced stress and better parent–child learning alignment  
+
+Our mission is to make learning progress **visible**, **actionable**, and **supportive** for every child.
+
+---
+
+## 🚀 Try AuraLearn
+You can sign up as either a **parent** or a **teacher**.
+
+During onboarding, feel free to enter any middle-school name in France.  
+The teacher experience is already fully functional.  
+The parent experience is being finalized and will be completed tonight.
+
+👉 **https://www.auralearn.academy**
+
+We’re building this to scale beyond the hackathon, refining it with real schools and families.
+
+---
+
+# 🧠 Core Features
+
+## **1. Learning Profile Assessment**
+AuraLearn uses a short, carefully designed assessment to understand how each child learns. It identifies patterns across:  
+- Processing speed  
+- Attention style  
+- Motivation profile  
+- Working memory  
+- Cognitive flexibility  
+- Challenge tolerance  
+
+Each student receives a clear learning profile describing strengths and areas to support.
+
+---
+
+## **2. Personalized Teaching Strategies**
+Based on each child’s learning profile, AuraLearn instantly generates:  
+- Practical classroom strategies  
+- Differentiation ideas for mixed-level teaching  
+- Tips tailored to CM1, CM2, and 6e expectations  
+- Guidance that supports attention, confidence, and motivation  
+
+Everything is grounded in modern pedagogy and learning science.
+
+---
+
+## **3. Parent-Friendly Home Support**
+AuraLearn translates classroom insights into at-home guidance:  
+- Easy-to-understand explanations  
+- Quick activities under 10 minutes  
+- Weekly routines to help without stress  
+- Adjusted tips based on the child’s learning pattern  
+
+This creates consistency between **home** and **school**.
+
+---
+
+## **4. Weekly Learning Snapshots**
+Teachers and parents can see:  
+- Trends in cognitive behavior  
+- Strength growth over time  
+- Motivation and attention patterns  
+- How strategies are impacting learning  
+
+Snapshots make progress visible.
+
+---
+
+## **5. Academic Alignment (CM1, CM2, 6e)**
+Although AuraLearn focuses on *how* a child learns, it also remains aligned with the French national curriculum:
+
+- Strategies support grade-level progress  
+- Activities follow CM1/CM2/6e expectations  
+- Teachers receive guidance they can trust  
+
+---
+
+# 🏗️ Tech Stack
+
+### **Frontend**
+- Next.js 14  
+- React  
+- TypeScript  
+- Tailwind CSS  
+- shadcn/ui  
+- Clerk Authentication  
+
+### **Backend**
+- Supabase (database + auth)  
+- Next.js API routes  
+- AI integrations with Gemini, Mistral, OpenAI, Blackbox  
+
+### **Voice & AI**
+- LiveKit for real-time conversational agents  
+- Custom voice assessments  
+
+---
+
+# 📦 Getting Started (Development)
+
+## **Prerequisites**
+- Node.js 18+  
+- npm or yarn  
+- Supabase account  
+- Clerk account  
+
+---
+
+## **Installation**
+
+### 1. Clone the project
+```bash
+git clone <YOUR_REPO_URL>
+cd auralearn-nextjs
+
 
 ## 🚀 Getting Started
 
