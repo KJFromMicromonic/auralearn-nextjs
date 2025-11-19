@@ -61,6 +61,7 @@ function AuthCallbackContent() {
             });
           }
 
+          // Wait for refresh to complete
           await refreshUser();
         };
 
@@ -69,40 +70,41 @@ function AuthCallbackContent() {
           await persistRole(roleFromUrl);
         }
 
-        // Small delay to ensure sync is complete
-        setTimeout(() => {
-          setHasChecked(true);
+        // Get role from URL parameter or from user metadata
+        const metadataRole = (clerkUser.unsafeMetadata?.role as 'teacher' | 'parent' | undefined)
+          || (clerkUser.publicMetadata?.role as 'teacher' | 'parent' | undefined);
+        const dbRole = user?.role as 'teacher' | 'parent' | undefined;
+        let finalRole: 'teacher' | 'parent' = roleFromUrl || metadataRole || dbRole || 'teacher';
 
-          // Get role from URL parameter or from user metadata
-          const metadataRole = (clerkUser.unsafeMetadata?.role as 'teacher' | 'parent' | undefined)
-            || (clerkUser.publicMetadata?.role as 'teacher' | 'parent' | undefined);
-          const dbRole = user?.role as 'teacher' | 'parent' | undefined;
-          let finalRole: 'teacher' | 'parent' = roleFromUrl || metadataRole || dbRole || 'teacher';
+        if (!metadataRole && !dbRole && !roleFromUrl) {
+          // Ensure future loads have a role
+          await persistRole(finalRole);
+        } else if (roleFromUrl || metadataRole) {
+          // Refresh user context to ensure it's up to date
+          await refreshUser();
+        }
 
-          if (!metadataRole && !dbRole && !roleFromUrl) {
-            // Ensure future loads have a role
-            persistRole(finalRole).catch((error) => {
-              console.error('Error persisting default role:', error);
-            });
+        // Small delay to ensure context updates propagate
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        setHasChecked(true);
+
+        // Redirect based on role
+        if (finalRole === 'teacher') {
+          // Check if teacher has completed onboarding
+          if (!user?.onboarding_completed) {
+            router.replace('/teacher-onboarding');
+          } else {
+            router.replace('/dashboard');
           }
-
-          // Redirect based on role
-          if (finalRole === 'teacher') {
-            // Check if teacher has completed onboarding
-            if (!user?.onboarding_completed) {
-              router.replace('/teacher-onboarding');
-            } else {
-              router.replace('/dashboard');
-            }
-          } else if (finalRole === 'parent') {
-            // Check if parent has completed onboarding
-            if (!user?.onboarding_completed) {
-              router.replace('/parent-onboarding');
-            } else {
-              router.replace('/parent-dashboard');
-            }
+        } else if (finalRole === 'parent') {
+          // Check if parent has completed onboarding
+          if (!user?.onboarding_completed) {
+            router.replace('/parent-onboarding');
+          } else {
+            router.replace('/parent-dashboard');
           }
-        }, 500);
+        }
       } catch (error) {
         console.error('Error in auth callback:', error);
         setHasChecked(true);

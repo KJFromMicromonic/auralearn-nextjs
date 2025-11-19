@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth as useClerkAuth } from '@clerk/clerk-react';
+import { useAuth as useClerkAuth, useUser } from '@clerk/clerk-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 
@@ -13,6 +13,7 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   const { isSignedIn, isLoaded: clerkLoaded } = useClerkAuth();
+  const { user: clerkUser } = useUser();
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -26,17 +27,32 @@ export default function ProtectedRoute({ children, requireRole }: ProtectedRoute
 
     if (!isSignedIn) {
       router.push('/sign-in');
-    } else if (isSignedIn && !user?.role) {
+      return;
+    }
+
+    // Check role from context or Clerk metadata as fallback
+    const roleFromContext = user?.role as 'teacher' | 'parent' | undefined;
+    const roleFromMetadata = (clerkUser?.unsafeMetadata?.role as 'teacher' | 'parent' | undefined)
+      || (clerkUser?.publicMetadata?.role as 'teacher' | 'parent' | undefined);
+    const userRole = roleFromContext || roleFromMetadata;
+
+    // If no role found anywhere, redirect to auth-callback to set it
+    if (!userRole) {
       router.push('/auth-callback');
-    } else if (isSignedIn && requireRole && user?.role !== requireRole) {
+      return;
+    }
+
+    // Check if role matches requirement
+    if (requireRole && userRole !== requireRole) {
       // Wrong role - redirect to appropriate dashboard
-      if (user.role === 'teacher') {
+      if (userRole === 'teacher') {
         router.push('/dashboard');
       } else {
-        router.push('/parent-guide');
+        router.push('/parent-dashboard');
       }
+      return;
     }
-  }, [clerkLoaded, authLoading, isSignedIn, user?.role, requireRole, router]);
+  }, [clerkLoaded, authLoading, isSignedIn, user?.role, clerkUser, requireRole, router]);
 
   // Wait for auth to load
   if (!clerkLoaded || authLoading) {
@@ -50,8 +66,14 @@ export default function ProtectedRoute({ children, requireRole }: ProtectedRoute
     );
   }
 
+  // Check role from context or Clerk metadata as fallback
+  const roleFromContext = user?.role as 'teacher' | 'parent' | undefined;
+  const roleFromMetadata = (clerkUser?.unsafeMetadata?.role as 'teacher' | 'parent' | undefined)
+    || (clerkUser?.publicMetadata?.role as 'teacher' | 'parent' | undefined);
+  const userRole = roleFromContext || roleFromMetadata;
+
   // Not signed in or wrong role - show loading while redirecting
-  if (!isSignedIn || !user?.role || (requireRole && user.role !== requireRole)) {
+  if (!isSignedIn || !userRole || (requireRole && userRole !== requireRole)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
