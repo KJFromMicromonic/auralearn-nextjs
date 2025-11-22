@@ -21,6 +21,7 @@ import {
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFeatureToggles } from "@/contexts/FeatureToggleContext";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getUserInitials } from "@/lib/users/get-user-initials";
@@ -37,6 +38,7 @@ const SIDEBAR_WIDTH = 288;
 export default function RoleBasedSidebar() {
   const pathname = usePathname();
   const { user, isParent, signOut } = useAuth();
+  const { isFeatureEnabled } = useFeatureToggles();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const hoverTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -44,17 +46,25 @@ export default function RoleBasedSidebar() {
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
 
   const teacherNavigation = React.useMemo(
-    () => [
-      { name: t('navigation.dashboard'), path: "/dashboard", icon: LayoutDashboard },
-      { name: t('navigation.createClass'), path: "/create-class", icon: Users },
-      { name: t('navigation.assessment'), path: "/assessment", icon: FileCheck },
-      { name: "AuraVoice", path: "/cognitive-assessment", icon: Brain },
-      { name: t('navigation.learningCategories'), path: "/student-categories", icon: Brain },
-      { name: t('navigation.teachingGuide'), path: "/teaching-guide", icon: BookOpen },
-      { name: t('navigation.worksheets'), path: "/worksheets", icon: FileText },
-      { name: t('navigation.settings'), path: "/settings", icon: Settings },
-    ],
-    [t],
+    () => {
+      const items = [
+        { name: t('navigation.dashboard'), path: "/dashboard", icon: LayoutDashboard },
+        { name: t('navigation.createClass'), path: "/create-class", icon: Users },
+        { name: t('navigation.assessment'), path: "/assessment", icon: FileCheck },
+        { name: "AuraVoice", path: "/cognitive-assessment", icon: Brain, featureFlag: 'aura_voice' as const },
+        { name: t('navigation.learningCategories'), path: "/student-categories", icon: Brain },
+        { name: t('navigation.teachingGuide'), path: "/teaching-guide", icon: BookOpen },
+        { name: t('navigation.worksheets'), path: "/worksheets", icon: FileText, featureFlag: 'worksheets' as const },
+        { name: t('navigation.settings'), path: "/settings", icon: Settings },
+      ];
+
+      // Filter items based on feature toggles
+      return items.filter(item => {
+        if (!item.featureFlag) return true;
+        return isFeatureEnabled(item.featureFlag);
+      });
+    },
+    [t, isFeatureEnabled],
   );
 
   const parentNavigation = React.useMemo(

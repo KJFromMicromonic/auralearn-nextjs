@@ -5,7 +5,7 @@ import { useUser, useClerk } from '@clerk/clerk-react';
 import { supabase } from '@/lib/supabase';
 import { logger } from '@/lib/logger';
 
-export type UserRole = 'teacher' | 'parent';
+export type UserRole = 'teacher' | 'parent' | 'admin';
 
 export type SubjectType = 
   | 'francais'
@@ -38,6 +38,7 @@ interface AuthContextType {
   isLoading: boolean;
   isTeacher: boolean;
   isParent: boolean;
+  isAdmin: boolean;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -208,6 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: !isLoaded || isLoading,
     isTeacher: userProfile?.role === 'teacher',
     isParent: userProfile?.role === 'parent',
+    isAdmin: userProfile?.role === 'admin',
     signOut: handleSignOut,
     refreshUser: fetchOrCreateUserProfile,
   };

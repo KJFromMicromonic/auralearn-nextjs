@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import LanguageSelector from "@/components/LanguageSelector";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
+import AdminFeatureToggles from "@/components/AdminFeatureToggles";
 
 const SUBJECTS: SubjectType[] = [
   'francais',
@@ -32,7 +33,7 @@ const GRADE_LEVELS: GradeLevelType[] = ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', 
 
 export default function SettingsPage() {
   const { t } = useTranslation();
-  const { user, isTeacher, refreshUser } = useAuth();
+  const { user, isTeacher, isAdmin, refreshUser } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   
   const [teacherProfile, setTeacherProfile] = useState({
@@ -90,6 +91,8 @@ export default function SettingsPage() {
             <h1 className="text-4xl font-bold text-foreground mb-2">{t('settings.title')}</h1>
             <p className="text-muted-foreground">{t('settings.description')}</p>
           </div>
+
+          {isAdmin && <AdminFeatureToggles />}
 
           <Card className="p-8 rounded-2xl">
             <div className="flex items-center gap-3 mb-6">

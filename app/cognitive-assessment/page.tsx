@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth, GradeLevelType } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Layout from '@/components/Layout';
+import FeatureGate from '@/components/FeatureGate';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -271,7 +272,8 @@ export default function LearningSnapshot() {
 
   return (
     <ProtectedRoute requireRole="teacher">
-      <Layout>
+      <FeatureGate featureName="aura_voice">
+        <Layout>
         <div className="space-y-6 animate-fade-in">
           <div>
             <h1 className="text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
@@ -751,6 +753,7 @@ export default function LearningSnapshot() {
           </DialogContent>
         </Dialog>
       </Layout>
+      </FeatureGate>
     </ProtectedRoute>
   );
 }

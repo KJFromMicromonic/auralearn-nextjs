@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Download, Users } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
+import FeatureGate from "@/components/FeatureGate";
 
 const worksheets = [
   {
@@ -81,7 +82,8 @@ const worksheets = [
 export default function Worksheets() {
   return (
     <ProtectedRoute requireRole="teacher">
-      <Layout>
+      <FeatureGate featureName="worksheets">
+        <Layout>
         <div className="space-y-6 animate-fade-in">
           <div>
             <h1 className="text-4xl font-bold text-foreground mb-2">Group Worksheets</h1>
@@ -170,6 +172,7 @@ export default function Worksheets() {
           </Card>
         </div>
       </Layout>
+      </FeatureGate>
     </ProtectedRoute>
   );
 }

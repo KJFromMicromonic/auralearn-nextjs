@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/clerk-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { FeatureToggleProvider } from "@/contexts/FeatureToggleContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -25,13 +26,15 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     <ClerkProvider publishableKey={clerkPubKey}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <LanguageProvider>
-            <TooltipProvider>
-              {children}
-              <Toaster />
-              <Sonner />
-            </TooltipProvider>
-          </LanguageProvider>
+          <FeatureToggleProvider>
+            <LanguageProvider>
+              <TooltipProvider>
+                {children}
+                <Toaster />
+                <Sonner />
+              </TooltipProvider>
+            </LanguageProvider>
+          </FeatureToggleProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ClerkProvider>
